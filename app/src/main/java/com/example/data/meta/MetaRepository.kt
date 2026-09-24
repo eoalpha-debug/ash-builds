@@ -442,7 +442,7 @@ class MetaRepository private constructor(context: Context) {
 
         /** URL padrão do painel admin (mude aqui ou configure em runtime). */
         const val defaultAdminOverridesUrl =
-            "https://raw.githubusercontent.com/abrandao/ash-builds/main/admin/overrides.json"
+            "https://raw.githubusercontent.com/eoalpha-debug/ash-builds/main/admin/overrides.json"
 
         fun getInstance(context: Context): MetaRepository =
             INSTANCE ?: synchronized(this) {

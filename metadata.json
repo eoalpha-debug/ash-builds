@@ -1,8 +1,5 @@
 {
   "name": "Ash Builds",
   "description": "Guia competitivo do Honor of Kings com as melhores builds, arcanas, feitiços, tier list atualizada do meta global e modo offline.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "requestFramePermissions": []
 }
