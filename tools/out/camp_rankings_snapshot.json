@@ -1,0 +1,698 @@
+{
+ "Daji": {
+  "tier": "SS",
+  "winRate": 51.2,
+  "pickRate": 2.6,
+  "banRate": 2.2
+ },
+ "Augran": {
+  "tier": "SS",
+  "winRate": 49.5,
+  "pickRate": 1.6,
+  "banRate": 4.0
+ },
+ "Angela": {
+  "tier": "SS",
+  "winRate": 51.1,
+  "pickRate": 2.7,
+  "banRate": 1.5
+ },
+ "Li Xin": {
+  "tier": "SS",
+  "winRate": 51.4,
+  "pickRate": 2.0,
+  "banRate": 2.9
+ },
+ "Ao'yin": {
+  "tier": "SS",
+  "winRate": 49.5,
+  "pickRate": 1.6,
+  "banRate": 3.2
+ },
+ "Hou Yi": {
+  "tier": "SS",
+  "winRate": 49.5,
+  "pickRate": 2.7,
+  "banRate": 0.2
+ },
+ "Liang": {
+  "tier": "SS",
+  "winRate": 50.8,
+  "pickRate": 0.8,
+  "banRate": 3.7
+ },
+ "Milady": {
+  "tier": "SS",
+  "winRate": 47.8,
+  "pickRate": 1.7,
+  "banRate": 1.8
+ },
+ "Dolia": {
+  "tier": "SS",
+  "winRate": 47.1,
+  "pickRate": 2.0,
+  "banRate": 1.0
+ },
+ "Luban No.7": {
+  "tier": "SS",
+  "winRate": 51.8,
+  "pickRate": 2.2,
+  "banRate": 0.4
+ },
+ "Cai Yan": {
+  "tier": "SS",
+  "winRate": 51.2,
+  "pickRate": 1.2,
+  "banRate": 2.3
+ },
+ "Mozi": {
+  "tier": "SS",
+  "winRate": 49.5,
+  "pickRate": 1.5,
+  "banRate": 1.7
+ },
+ "Garo": {
+  "tier": "SS",
+  "winRate": 53.9,
+  "pickRate": 2.0,
+  "banRate": 0.5
+ },
+ "Haya": {
+  "tier": "SS",
+  "winRate": 48.3,
+  "pickRate": 1.0,
+  "banRate": 2.5
+ },
+ "Zhaojun": {
+  "tier": "SS",
+  "winRate": 51.0,
+  "pickRate": 1.8,
+  "banRate": 0.8
+ },
+ "Marco Polo": {
+  "tier": "SS",
+  "winRate": 50.0,
+  "pickRate": 1.8,
+  "banRate": 0.3
+ },
+ "Donghuang": {
+  "tier": "SS",
+  "winRate": 48.2,
+  "pickRate": 0.8,
+  "banRate": 2.4
+ },
+ "Kongming": {
+  "tier": "SS",
+  "winRate": 51.1,
+  "pickRate": 1.6,
+  "banRate": 0.7
+ },
+ "Dun": {
+  "tier": "SS",
+  "winRate": 52.9,
+  "pickRate": 1.6,
+  "banRate": 0.6
+ },
+ "Yaria": {
+  "tier": "SS",
+  "winRate": 49.8,
+  "pickRate": 1.1,
+  "banRate": 1.6
+ },
+ "Xiao Qiao": {
+  "tier": "SS",
+  "winRate": 48.2,
+  "pickRate": 1.7,
+  "banRate": 0.3
+ },
+ "Lady Sun": {
+  "tier": "SS",
+  "winRate": 48.9,
+  "pickRate": 1.7,
+  "banRate": 0.1
+ },
+ "Erin": {
+  "tier": "SS",
+  "winRate": 50.5,
+  "pickRate": 1.6,
+  "banRate": 0.2
+ },
+ "Lam": {
+  "tier": "SS",
+  "winRate": 48.3,
+  "pickRate": 1.1,
+  "banRate": 1.2
+ },
+ "Chicha": {
+  "tier": "SS",
+  "winRate": 51.8,
+  "pickRate": 1.5,
+  "banRate": 0.4
+ },
+ "Dyadia": {
+  "tier": "SS",
+  "winRate": 48.6,
+  "pickRate": 1.0,
+  "banRate": 1.3
+ },
+ "Consorte Yu": {
+  "tier": "SS",
+  "winRate": 51.6,
+  "pickRate": 1.5,
+  "banRate": 0.2
+ },
+ "Wukong": {
+  "tier": "SS",
+  "winRate": 48.9,
+  "pickRate": 1.3,
+  "banRate": 0.6
+ },
+ "Kaizer": {
+  "tier": "SS",
+  "winRate": 50.9,
+  "pickRate": 1.4,
+  "banRate": 0.1
+ },
+ "Florentino": {
+  "tier": "SS",
+  "winRate": 51.6,
+  "pickRate": 0.5,
+  "banRate": 1.7
+ },
+ "Mi Yue": {
+  "tier": "SS",
+  "winRate": 50.0,
+  "pickRate": 0.9,
+  "banRate": 1.0
+ },
+ "Nuwa": {
+  "tier": "SS",
+  "winRate": 53.8,
+  "pickRate": 1.0,
+  "banRate": 0.6
+ },
+ "Lian Po": {
+  "tier": "SS",
+  "winRate": 52.5,
+  "pickRate": 1.2,
+  "banRate": 0.2
+ },
+ "Lu Bu": {
+  "tier": "SS",
+  "winRate": 48.9,
+  "pickRate": 1.1,
+  "banRate": 0.3
+ },
+ "Dian Wei": {
+  "tier": "S",
+  "winRate": 50.5,
+  "pickRate": 1.0,
+  "banRate": 0.6
+ },
+ "Devara": {
+  "tier": "S",
+  "winRate": 49.3,
+  "pickRate": 1.1,
+  "banRate": 0.3
+ },
+ "Ser do Fluxo (Atirador)": {
+  "tier": "S",
+  "winRate": 51.5,
+  "pickRate": 1.2,
+  "banRate": 0.1
+ },
+ "Kui": {
+  "tier": "S",
+  "winRate": 49.4,
+  "pickRate": 0.9,
+  "banRate": 0.6
+ },
+ "Zhuangzi": {
+  "tier": "S",
+  "winRate": 48.2,
+  "pickRate": 0.6,
+  "banRate": 1.2
+ },
+ "Da Qiao": {
+  "tier": "S",
+  "winRate": 48.4,
+  "pickRate": 0.9,
+  "banRate": 0.5
+ },
+ "Arthur": {
+  "tier": "S",
+  "winRate": 50.0,
+  "pickRate": 1.1,
+  "banRate": 0.0
+ },
+ "Musashi": {
+  "tier": "S",
+  "winRate": 48.8,
+  "pickRate": 0.9,
+  "banRate": 0.3
+ },
+ "Zilong": {
+  "tier": "S",
+  "winRate": 54.6,
+  "pickRate": 1.1,
+  "banRate": 0.0
+ },
+ "Shi": {
+  "tier": "S",
+  "winRate": 51.1,
+  "pickRate": 0.8,
+  "banRate": 0.5
+ },
+ "Changgong": {
+  "tier": "S",
+  "winRate": 48.7,
+  "pickRate": 0.5,
+  "banRate": 1.2
+ },
+ "Lady Zhen": {
+  "tier": "S",
+  "winRate": 50.8,
+  "pickRate": 1.0,
+  "banRate": 0.0
+ },
+ "Fang": {
+  "tier": "S",
+  "winRate": 49.0,
+  "pickRate": 1.0,
+  "banRate": 0.0
+ },
+ "Arke": {
+  "tier": "S",
+  "winRate": 51.2,
+  "pickRate": 0.6,
+  "banRate": 0.9
+ },
+ "Zhang Fei": {
+  "tier": "S",
+  "winRate": 49.2,
+  "pickRate": 0.8,
+  "banRate": 0.4
+ },
+ "Shouyue": {
+  "tier": "S",
+  "winRate": 50.3,
+  "pickRate": 0.9,
+  "banRate": 0.1
+ },
+ "Umbrosa": {
+  "tier": "S",
+  "winRate": 50.8,
+  "pickRate": 0.9,
+  "banRate": 0.1
+ },
+ "Luara": {
+  "tier": "S",
+  "winRate": 48.2,
+  "pickRate": 0.9,
+  "banRate": 0.1
+ },
+ "Alessio": {
+  "tier": "S",
+  "winRate": 52.3,
+  "pickRate": 0.9,
+  "banRate": 0.0
+ },
+ "Di Renjie": {
+  "tier": "S",
+  "winRate": 51.8,
+  "pickRate": 0.9,
+  "banRate": 0.0
+ },
+ "Liu Shan": {
+  "tier": "S",
+  "winRate": 49.2,
+  "pickRate": 0.8,
+  "banRate": 0.1
+ },
+ "Sun Ce": {
+  "tier": "S",
+  "winRate": 48.2,
+  "pickRate": 0.9,
+  "banRate": 0.0
+ },
+ "Sima Yi": {
+  "tier": "S",
+  "winRate": 53.3,
+  "pickRate": 0.7,
+  "banRate": 0.3
+ },
+ "Arli": {
+  "tier": "S",
+  "winRate": 46.7,
+  "pickRate": 0.7,
+  "banRate": 0.2
+ },
+ "Garuda": {
+  "tier": "S",
+  "winRate": 51.2,
+  "pickRate": 0.8,
+  "banRate": 0.0
+ },
+ "Chano": {
+  "tier": "S",
+  "winRate": 50.9,
+  "pickRate": 0.8,
+  "banRate": 0.1
+ },
+ "Ying": {
+  "tier": "S",
+  "winRate": 53.0,
+  "pickRate": 0.8,
+  "banRate": 0.1
+ },
+ "Heino": {
+  "tier": "S",
+  "winRate": 47.5,
+  "pickRate": 0.7,
+  "banRate": 0.1
+ },
+ "Diaochan": {
+  "tier": "S",
+  "winRate": 47.9,
+  "pickRate": 0.8,
+  "banRate": 0.1
+ },
+ "Biron": {
+  "tier": "S",
+  "winRate": 47.8,
+  "pickRate": 0.7,
+  "banRate": 0.2
+ },
+ "Xiang Yu": {
+  "tier": "S",
+  "winRate": 50.4,
+  "pickRate": 0.7,
+  "banRate": 0.0
+ },
+ "Charlotte": {
+  "tier": "S",
+  "winRate": 49.6,
+  "pickRate": 0.7,
+  "banRate": 0.0
+ },
+ "Ziya": {
+  "tier": "S",
+  "winRate": 50.1,
+  "pickRate": 0.7,
+  "banRate": 0.1
+ },
+ "Luna": {
+  "tier": "S",
+  "winRate": 46.3,
+  "pickRate": 0.5,
+  "banRate": 0.4
+ },
+ "Feyd": {
+  "tier": "S",
+  "winRate": 54.1,
+  "pickRate": 0.5,
+  "banRate": 0.4
+ },
+ "Mai Shiranui": {
+  "tier": "A",
+  "winRate": 49.1,
+  "pickRate": 0.6,
+  "banRate": 0.1
+ },
+ "Li Bai": {
+  "tier": "A",
+  "winRate": 51.6,
+  "pickRate": 0.6,
+  "banRate": 0.1
+ },
+ "Yixing": {
+  "tier": "A",
+  "winRate": 51.1,
+  "pickRate": 0.7,
+  "banRate": 0.0
+ },
+ "Ser do Fluxo (Tanque)": {
+  "tier": "A",
+  "winRate": 49.0,
+  "pickRate": 0.6,
+  "banRate": 0.1
+ },
+ "Yao": {
+  "tier": "A",
+  "winRate": 52.2,
+  "pickRate": 0.6,
+  "banRate": 0.1
+ },
+ "Xuance": {
+  "tier": "A",
+  "winRate": 53.5,
+  "pickRate": 0.6,
+  "banRate": 0.1
+ },
+ "Dr. Bian": {
+  "tier": "A",
+  "winRate": 50.2,
+  "pickRate": 0.5,
+  "banRate": 0.2
+ },
+ "Ming": {
+  "tier": "A",
+  "winRate": 50.7,
+  "pickRate": 0.6,
+  "banRate": 0.0
+ },
+ "Guan Yu": {
+  "tier": "A",
+  "winRate": 47.9,
+  "pickRate": 0.5,
+  "banRate": 0.2
+ },
+ "Butterfly": {
+  "tier": "A",
+  "winRate": 50.8,
+  "pickRate": 0.5,
+  "banRate": 0.1
+ },
+ "Ata": {
+  "tier": "A",
+  "winRate": 53.0,
+  "pickRate": 0.5,
+  "banRate": 0.0
+ },
+ "Lorion": {
+  "tier": "A",
+  "winRate": 51.1,
+  "pickRate": 0.5,
+  "banRate": 0.2
+ },
+ "Nakoruru": {
+  "tier": "A",
+  "winRate": 49.4,
+  "pickRate": 0.5,
+  "banRate": 0.1
+ },
+ "Agu": {
+  "tier": "A",
+  "winRate": 53.5,
+  "pickRate": 0.5,
+  "banRate": 0.0
+ },
+ "Allain": {
+  "tier": "A",
+  "winRate": 50.8,
+  "pickRate": 0.5,
+  "banRate": 0.0
+ },
+ "Nezha": {
+  "tier": "A",
+  "winRate": 53.0,
+  "pickRate": 0.4,
+  "banRate": 0.1
+ },
+ "Zhou Yu": {
+  "tier": "A",
+  "winRate": 51.4,
+  "pickRate": 0.5,
+  "banRate": 0.0
+ },
+ "Yuhuan": {
+  "tier": "A",
+  "winRate": 49.8,
+  "pickRate": 0.5,
+  "banRate": 0.0
+ },
+ "Sakeer": {
+  "tier": "A",
+  "winRate": 52.5,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Gao": {
+  "tier": "A",
+  "winRate": 51.8,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Fatih": {
+  "tier": "A",
+  "winRate": 52.6,
+  "pickRate": 0.4,
+  "banRate": 0.1
+ },
+ "Ser do Fluxo (Mago)": {
+  "tier": "A",
+  "winRate": 51.3,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Annette": {
+  "tier": "A",
+  "winRate": 48.8,
+  "pickRate": 0.4,
+  "banRate": 0.1
+ },
+ "Wuyan": {
+  "tier": "A",
+  "winRate": 51.2,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Gan & Mo": {
+  "tier": "A",
+  "winRate": 49.9,
+  "pickRate": 0.4,
+  "banRate": 0.1
+ },
+ "Huang Zhong": {
+  "tier": "A",
+  "winRate": 50.2,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Fuzi": {
+  "tier": "A",
+  "winRate": 52.6,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Lapulapu": {
+  "tier": "A",
+  "winRate": 54.9,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Mulan": {
+  "tier": "A",
+  "winRate": 50.5,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Bai Qi": {
+  "tier": "A",
+  "winRate": 50.7,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Mayene": {
+  "tier": "A",
+  "winRate": 47.8,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Shangguan": {
+  "tier": "A",
+  "winRate": 48.8,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Meng Ya": {
+  "tier": "A",
+  "winRate": 52.4,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Ukyo Tachibana": {
+  "tier": "A",
+  "winRate": 49.1,
+  "pickRate": 0.4,
+  "banRate": 0.0
+ },
+ "Jing": {
+  "tier": "A",
+  "winRate": 45.8,
+  "pickRate": 0.3,
+  "banRate": 0.1
+ },
+ "Sun Bin": {
+  "tier": "A",
+  "winRate": 48.8,
+  "pickRate": 0.3,
+  "banRate": 0.0
+ },
+ "Yang Jian": {
+  "tier": "A",
+  "winRate": 51.2,
+  "pickRate": 0.3,
+  "banRate": 0.0
+ },
+ "Yuan Ge": {
+  "tier": "A",
+  "winRate": 49.6,
+  "pickRate": 0.3,
+  "banRate": 0.0
+ },
+ "Pei": {
+  "tier": "A",
+  "winRate": 51.2,
+  "pickRate": 0.3,
+  "banRate": 0.1
+ },
+ "Guiguzi": {
+  "tier": "A",
+  "winRate": 51.2,
+  "pickRate": 0.2,
+  "banRate": 0.2
+ },
+ "Liu Bei": {
+  "tier": "A",
+  "winRate": 50.7,
+  "pickRate": 0.3,
+  "banRate": 0.0
+ },
+ "Liu Bang": {
+  "tier": "A",
+  "winRate": 50.7,
+  "pickRate": 0.3,
+  "banRate": 0.0
+ },
+ "Dharma": {
+  "tier": "A",
+  "winRate": 53.4,
+  "pickRate": 0.3,
+  "banRate": 0.0
+ },
+ "Han Xin": {
+  "tier": "A",
+  "winRate": 47.9,
+  "pickRate": 0.3,
+  "banRate": 0.0
+ },
+ "Menki": {
+  "tier": "A",
+  "winRate": 53.5,
+  "pickRate": 0.2,
+  "banRate": 0.0
+ },
+ "Cirrus": {
+  "tier": "A",
+  "winRate": 51.0,
+  "pickRate": 0.2,
+  "banRate": 0.0
+ },
+ "Athena": {
+  "tier": "A",
+  "winRate": 52.1,
+  "pickRate": 0.1,
+  "banRate": 0.0
+ }
+}

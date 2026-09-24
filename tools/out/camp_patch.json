@@ -1,0 +1,41 @@
+{
+ "season": "T16",
+ "date": "2026/09/23",
+ "changes": [
+  {
+   "heroName": "Umbrosa",
+   "changeType": "Mecânicas melhoradas",
+   "summary": "Aprimoramento de qualidade\r\nEfeitos de habilidade aprimorados"
+  },
+  {
+   "heroName": "Ukyo Tachibana",
+   "changeType": "Bônus de atributos",
+   "summary": "Atributos melhorados"
+  },
+  {
+   "heroName": "Chano",
+   "changeType": "Bônus de atributos",
+   "summary": "Atributos melhorados"
+  },
+  {
+   "heroName": "Da Qiao",
+   "changeType": "Bônus de atributos",
+   "summary": "Atributos melhorados"
+  },
+  {
+   "heroName": "Florentino",
+   "changeType": "Atr. Alterados",
+   "summary": "Atributos ajustados"
+  },
+  {
+   "heroName": "Luara",
+   "changeType": "Mecânicas melhoradas",
+   "summary": "Melhorias no desempenho visual"
+  },
+  {
+   "heroName": "Ser do Fluxo (Mago)",
+   "changeType": "Mecânicas melhoradas",
+   "summary": "Aprimoramento de qualidade\r\nEfeitos de habilidade aprimorados"
+  }
+ ]
+}
