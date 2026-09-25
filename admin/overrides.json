@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "featuredHero": "",
+  "featuredHero": "florentino",
   "bannerMessage": "",
   "tierOverrides": {},
   "customBuilds": {},
@@ -8,5 +8,7 @@
   "patchHidden": [],
   "hiddenChampions": [],
   "statOverrides": {},
-  "titleOverrides": {}
+  "titleOverrides": {},
+  "url": "",
+  "updatedAt": "2026-09-25T01:31:16.831Z"
 }
