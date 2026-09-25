@@ -234,7 +234,9 @@ data class AdminOverridesJson(
 data class CustomBuildJson(
     val items: List<String> = emptyList(),
     val arcanas: List<String> = emptyList(),
-    val spell: String = ""
+    val spell: String = "",
+    /** Itens situacionais manuais (nomes PT-BR). */
+    val situational: List<String> = emptyList()
 )
 
 @JsonClass(generateAdapter = true)

@@ -219,12 +219,15 @@ function itemRow(listId, val=""){
 function addCustomBuild(slug="", obj={}){
   const items = (obj.items||[]).map(i=>itemRow('itemListData',i)).join('');
   const arcs = (obj.arcanas||[]).map(i=>itemRow('arcanaListData',i)).join('');
+  const sits = (obj.situational||[]).map(i=>itemRow('itemListData',i)).join('');
   const d=document.createElement('div');d.className='itemCard';
   d.innerHTML=`<div class="row"><input list="slugList" class="cbSlug" value="${slug}" placeholder="slug do campeão" style="flex:1"><button class="btn danger small" onclick="this.closest('.itemCard').remove()">✕</button></div>
     <label>Itens (6)</label><div class="cbItems">${items}</div>
     <button class="btn ghost small" onclick="this.previousElementSibling.insertAdjacentHTML('beforeend', itemRow('itemListData'))">+ item</button>
     <label>Arcanas (ex.: "9x Mutação")</label><div class="cbA">${arcs}</div>
     <button class="btn ghost small" onclick="this.previousElementSibling.insertAdjacentHTML('beforeend', itemRow('arcanaListData'))">+ arcana</button>
+    <label>Itens situacionais (manual)</label><div class="cbSit">${sits}</div>
+    <button class="btn ghost small" onclick="this.previousElementSibling.insertAdjacentHTML('beforeend', itemRow('itemListData'))">+ situacional</button>
     <label>Feitiço</label><select class="cbSpell">${SEED.spells.map(s=>`<option ${s===obj.spell?'selected':''}>${s}</option>`).join('')}</select>`;
   $('#customBuildsHost').append(d);
 }
@@ -283,6 +286,7 @@ function collect(){
     data.customBuilds[slug]={
       items:[...c.querySelectorAll('.cbItems input')].map(i=>i.value.trim()).filter(Boolean),
       arcanas:[...c.querySelectorAll('.cbA input')].map(i=>i.value.trim()).filter(Boolean),
+      situational:[...c.querySelectorAll('.cbSit input')].map(i=>i.value.trim()).filter(Boolean),
       spell:c.querySelector('.cbSpell').value
     };
   });

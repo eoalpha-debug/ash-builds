@@ -297,29 +297,20 @@ object ChampionJsonMapper {
             hero.roles.joinToString(" / ").ifEmpty { hero.classType ?: "Herói" }
         )
 
-        // Itens situacionais REAIS por campeão: itens defensivos/mobilidade que a
-        // base oficial marca como "usados por" este herói (com imagem real)
+        // Itens situacionais: manual do painel admin tem prioridade; senão, base real usedBy
         fun situationalFor(): List<SituationalItem> {
-            val heroSlug = norm(hero.slug)
-            val coreIds = ((proBuild?.itens?.map { it.id } ?: emptyList()) + itemsFor(hero, items).map { it.id }).toSet()
-            val used = items.filter { item ->
-                item.itemId !in coreIds &&
-                    (item.category.equals("Defense", true) || item.category.equals("Movement", true)) &&
-                    item.usedBy.any { norm(it.slug) == heroSlug }
-            }.take(2)
-            if (used.isNotEmpty()) {
-                return used.map { item ->
+            // 1) Manual do painel admin (nome PT-BR → imagem real)
+            customBuild?.situational?.takeIf { it.isNotEmpty() }?.let { manual ->
+                return manual.map { nome ->
                     SituationalItem(
-                        name = item.name,
-                        reason = item.tagline?.takeIf { it.isNotBlank() }
-                            ?.let { "Escolha ${item.category.lowercase(Locale.ROOT)} real para $it" }
-                            ?: "Item situacional usado por este herói em partidas reais",
-                        tag = if (item.category.equals("Defense", true)) "Defesa" else "Mobilidade",
-                        imageUrl = item.itemId.takeIf { it.isNotBlank() }?.let { "https://hokstats.gg/items/$it.png" }
+                        name = nome.replaceFirstChar { it.uppercase(Locale.ROOT) },
+                        reason = "Situacional definido pelo admin",
+                        tag = "Situacional",
+                        imageUrl = ptItemImage(nome)
                     )
                 }
             }
-            // Fallback real quando a base não marca usuários: itens defensivos top-tier universais
+            // 2) Fallback: itens defensivos universais reais (com imagem oficial)
             return listOf(
                 SituationalItem("Lâmina Sábia", "Ressurreição em lutas decisivas", "Sobrevivência", "https://hokstats.gg/items/1337.png"),
                 SituationalItem("Presságio Ominoso", "Contra excesso de dano físico", "Anti-AD", "https://hokstats.gg/items/1333.png")

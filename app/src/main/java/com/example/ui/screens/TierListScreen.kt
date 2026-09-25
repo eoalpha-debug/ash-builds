@@ -250,54 +250,6 @@ fun TierListScreen(
       }
     }
 
-    // 4. Quick Meta Insight Card
-    item {
-      Box(
-        modifier = Modifier
-          .fillMaxWidth()
-          .clip(RoundedCornerShape(12.dp))
-          .background(MechaSurfaceContainer)
-          .padding(12.dp)
-      ) {
-        Row(
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-          Box(
-            modifier = Modifier
-              .size(40.dp)
-              .clip(RoundedCornerShape(8.dp))
-              .background(MechaSecondaryContainer),
-            contentAlignment = Alignment.Center
-          ) {
-            Icon(
-              imageVector = Icons.Default.MilitaryTech,
-              contentDescription = null,
-              tint = MechaSecondary,
-              modifier = Modifier.size(22.dp)
-            )
-          }
-
-          Column(modifier = Modifier.weight(1f)) {
-            Text(
-              text = "TENDÊNCIA DA SEMANA",
-              fontSize = 10.sp,
-              fontWeight = FontWeight.ExtraBold,
-              color = MechaSecondary,
-              letterSpacing = 0.5.sp
-            )
-            Text(
-              text = "Hiper-mobilidade e controle coletivo dominam o topo da tabela.",
-              fontSize = 13.sp,
-              color = MechaOnSurface,
-              maxLines = 1,
-              overflow = TextOverflow.Ellipsis
-            )
-          }
-        }
-      }
-    }
-
     // EMPTY STATE WHEN NO RESULTS
     if (totalVisible == 0) {
       item {
