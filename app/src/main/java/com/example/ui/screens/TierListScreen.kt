@@ -94,7 +94,9 @@ fun TierListScreen(
   val sHeroes = remember(allChampions, selectedLane, searchQuery) { viewModel.getFilteredTierHeroes(HeroTier.S) }
   val aHeroes = remember(allChampions, selectedLane, searchQuery) { viewModel.getFilteredTierHeroes(HeroTier.A) }
 
-  val totalVisible = ssHeroes.size + sHeroes.size + aHeroes.size
+  val bHeroes = remember(allChampions, selectedLane, searchQuery) { viewModel.getFilteredTierHeroes(HeroTier.B) }
+
+  val totalVisible = ssHeroes.size + sHeroes.size + aHeroes.size + bHeroes.size
 
   LazyColumn(
     modifier = modifier
@@ -416,79 +418,24 @@ fun TierListScreen(
         )
       }
     }
-
     // ==================== TIER B ====================
-    if (selectedLane == Lane.TODAS && searchQuery.isEmpty()) {
+    if (bHeroes.isNotEmpty()) {
       item {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-          TierSectionHeader(
-            badgeText = "B",
-            title = "Situacionais / Requer Sinergia",
-            subtitle = "Dependem de counter-picks específicos ou comps dedicadas",
-            countText = "Controle",
-            badgeBg = MechaSurfaceContainerHigh,
-            badgeColor = MechaOutline
-          )
+        TierSectionHeader(
+          badgeText = "B",
+          title = "Situacionais / Requer Sinergia",
+          subtitle = "Dependem de counter-picks específicos ou comps dedicadas",
+          countText = "${bHeroes.size} Heróis",
+          badgeBg = MechaSurfaceContainerHigh,
+          badgeColor = MechaOutline
+        )
+      }
 
-          Box(
-            modifier = Modifier
-              .fillMaxWidth()
-              .clip(RoundedCornerShape(12.dp))
-              .background(MechaSurfaceContainerLow)
-              .padding(14.dp)
-          ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-              Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-              ) {
-                Row(
-                  verticalAlignment = Alignment.CenterVertically,
-                  horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                  Icon(
-                    imageVector = Icons.Default.GroupWork,
-                    contentDescription = null,
-                    tint = MechaOutline,
-                    modifier = Modifier.size(18.dp)
-                  )
-                  Text(
-                    text = "Heróis dependentes de comunicação coordenada",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                  )
-                }
-                Text(
-                  text = "WR Médio ~48.9%",
-                  fontSize = 11.sp,
-                  fontWeight = FontWeight.Bold,
-                  color = MechaSecondary
-                )
-              }
-
-              Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.fillMaxWidth()
-              ) {
-                listOf("Gongsun Li", "Biron", "Mozi", "Mulan", "Zhuangzi").forEach { champName ->
-                  Box(
-                    modifier = Modifier
-                      .clip(RoundedCornerShape(6.dp))
-                      .background(MechaSurfaceContainer)
-                      .padding(horizontal = 8.dp, vertical = 4.dp)
-                  ) {
-                    Text(
-                      text = champName,
-                      fontSize = 11.sp,
-                      color = MechaOnSurface
-                    )
-                  }
-                }
-              }
-            }
-          }
-        }
+      items(bHeroes) { hero ->
+        TierAHeroCard(
+          champion = hero,
+          onClick = { onNavigateToChampionDetail(hero.id) }
+        )
       }
     }
 

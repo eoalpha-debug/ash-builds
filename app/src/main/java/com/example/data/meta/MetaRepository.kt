@@ -369,7 +369,7 @@ class MetaRepository private constructor(context: Context) {
         data class Failure(val message: String) : SyncResult()
     }
 
-    suspend fun syncNow(): SyncResult {
+    suspend fun syncNow(): SyncResult = kotlinx.coroutines.withContext(Dispatchers.IO) {
         val sources = mutableListOf<String>()
 
         // Camada 3 â€” tier list BR (HOK Pro), acesso direto sem autenticaÃ§Ã£o
@@ -394,7 +394,7 @@ class MetaRepository private constructor(context: Context) {
             }
         }
 
-        if (sources.isEmpty()) return SyncResult.Failure("Sem conexÃ£o â€” usando dados locais em cache")
+        if (sources.isEmpty()) return@withContext SyncResult.Failure("Sem conexÃ£o â€” usando dados locais em cache")
 
         // Overrides do painel admin (URL configurável)
         val adminUrl = adminOverridesUrl ?: defaultAdminOverridesUrl
@@ -410,11 +410,11 @@ class MetaRepository private constructor(context: Context) {
             }
         }
 
-        if (sources.isEmpty()) return SyncResult.Failure("Sem conexão — usando dados locais em cache")
+        if (sources.isEmpty()) return@withContext SyncResult.Failure("Sem conexão — usando dados locais em cache")
 
         loadBase()
         _lastSyncAt.value = System.currentTimeMillis()
-        return SyncResult.Success(sources, System.currentTimeMillis())
+        SyncResult.Success(sources, System.currentTimeMillis())
     }
 
     /** URL do micro-backend com snapshot do Camp (configurÃ¡vel; vazio = desativado). */
@@ -478,4 +478,5 @@ class MetaRepository private constructor(context: Context) {
             }
     }
 }
+
 
