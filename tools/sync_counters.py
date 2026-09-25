@@ -80,10 +80,13 @@ async def main():
                     if data:
                         break
             if data:
+                pro = data.get("proPlayer") or {}
                 result[slug] = {
                     "counters": norm_entries(data.get("counters")),
                     "synergies": norm_entries(data.get("synergies")),
                     "strongAgainst": norm_entries(data.get("strongAgainst")),
+                    "proName": pro.get("name", ""),
+                    "proTeam": pro.get("team", ""),
                 }
                 print(f"[{i}/{len(heroes)}] {h['name']}: ok")
             else:

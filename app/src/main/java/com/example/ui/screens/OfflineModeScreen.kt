@@ -558,7 +558,13 @@ fun SavedGuideCard(
           }
 
           Text(
-            text = guide.buildSummary,
+            text = run {
+              val lines = mutableListOf(guide.buildSummary)
+              if (guide.itemsText.isNotBlank()) lines += "🎒 " + guide.itemsText.split("|").take(3).joinToString(", ")
+              if (guide.arcanasText.isNotBlank()) lines += "🔯 " + guide.arcanasText.split("|").take(2).joinToString(", ")
+              if (guide.spellName.isNotBlank()) lines += "✨ " + guide.spellName
+              lines.joinToString("\n")
+            },
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,

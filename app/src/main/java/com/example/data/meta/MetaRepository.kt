@@ -50,6 +50,9 @@ class MetaRepository private constructor(context: Context) {
     private val _bannerMessage = MutableStateFlow<String?>(null)
     val bannerMessage: StateFlow<String?> = _bannerMessage.asStateFlow()
 
+    private val _allItems = MutableStateFlow<List<ItemJson>>(emptyList())
+    val allItems: StateFlow<List<ItemJson>> = _allItems.asStateFlow()
+
     /** Overrides do painel admin carregados no momento. */
     private var adminOverrides: AdminOverridesJson? = null
 
@@ -73,6 +76,7 @@ class MetaRepository private constructor(context: Context) {
     private suspend fun loadBase() {
         val heroes = readJsonList<HeroJson>("meta/heroes.json", HeroJson::class.java)
         val items = readJsonList<ItemJson>("meta/items.json", ItemJson::class.java)
+        _allItems.value = items
         val arcanas = readJsonList<ArcanaJson>("meta/arcana.json", ArcanaJson::class.java)
         val patches = readJsonList<PatchJson>("meta/patches.json", PatchJson::class.java)
         val campFull = readJsonList<CampHeroJson>("meta/camp_full.json", CampHeroJson::class.java)
@@ -315,11 +319,37 @@ class MetaRepository private constructor(context: Context) {
                     spellSubtitle = if (hasProBuild) converted.spellSubtitle else it.spellSubtitle,
                     spellDescription = if (hasProBuild) converted.spellDescription else it.spellDescription,
                     spellImageUrl = if (hasProBuild) converted.spellImageUrl else it.spellImageUrl,
-                    buildTitle = if (hasProBuild) converted.buildTitle else it.buildTitle
+                    buildTitle = if (hasProBuild) converted.buildTitle else it.buildTitle,
+                    counters = converted.counters,
+                    synergies = converted.synergies,
+                    strongAgainst = converted.strongAgainst,
+                    proPlayerName = converted.proPlayerName,
+                    proPlayerTeam = converted.proPlayerTeam
                 )
             } ?: converted
             applyOverrides(baseMerged)
         }.sortedWith(compareBy({ it.tier.ordinal }, { -parseRate(it.winRate) }))
+
+        // Enriquece counters: quem é "forte contra" este herói em outros cards vira
+        // counter dele aqui (dados reais cruzados) — garante 4+ counters por campeão
+        val byNormName = { n: String -> n.lowercase(java.util.Locale.ROOT).replace(Regex("[^a-z0-9]"), "") }
+        val currentCounters = _champions.value
+        val enriched = currentCounters.map { champ ->
+            val directNames = champ.counters.map { byNormName(it.name) }.toSet()
+            val extra = currentCounters.filter { other ->
+                other.id != champ.id && other.strongAgainst.any { byNormName(it.name) == byNormName(champ.name) }
+            }.map { other ->
+                val eff = other.strongAgainst.first { byNormName(it.name) == byNormName(champ.name) }.effectiveness
+                com.example.data.model.MatchupInfo(other.name, other.lane.chipShort, eff)
+            }
+            val merged = (champ.counters + extra)
+                .filter { byNormName(it.name) != byNormName(champ.name) }
+                .distinctBy { byNormName(it.name) }
+                .sortedByDescending { it.effectiveness }
+                .take(4)
+            if (directNames.isEmpty() && merged.isEmpty()) champ else champ.copy(counters = merged)
+        }
+        _champions.value = enriched
 
         cacheDao.get(MetaCacheDao.KEY_HOKPRO_TIERLIST)?.let { _lastSyncAt.value = it.updatedAt }
     }
@@ -478,6 +508,17 @@ class MetaRepository private constructor(context: Context) {
         _champions.value.firstOrNull {
             it.id.equals(id, true) || ChampionJsonMapper.matchesKey(it.id, id)
         }
+
+    /** Histórico de WR do herói (datas × valor), lido do asset rankings_history.json. */
+    fun getWrHistory(heroName: String): List<Pair<String, Double>> {
+        return runCatching {
+            val raw = appContext.assets.open("meta/rankings_history.json").bufferedReader().use { it.readText() }
+            val hist = moshi.adapter(WrHistoryJson::class.java).fromJson(raw) ?: return emptyList()
+            hist.dates.mapNotNull { date ->
+                hist.data[date]?.entries?.firstOrNull { ChampionJsonMapper.matchesKey(it.key, heroName) }?.value?.let { wr -> date to wr }
+            }
+        }.getOrDefault(emptyList())
+    }
 
     fun getChampionsByLane(lane: Lane): List<Champion> =
         if (lane == Lane.TODAS) _champions.value else _champions.value.filter { it.lane == lane }

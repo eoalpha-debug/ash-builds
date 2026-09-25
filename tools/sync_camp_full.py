@@ -132,6 +132,31 @@ async def main() -> int:
         os.makedirs(OUT_DIR, exist_ok=True)
         with open(os.path.join(OUT_DIR, "camp_rankings_snapshot.json"), "w", encoding="utf-8") as f:
             json.dump(snap, f, ensure_ascii=False, indent=1)
+
+        # ---- Histórico de WR (acumula por data para o gráfico do app) ----
+        import datetime
+        hist_path = os.path.join(OUT_DIR, "rankings_history.json")
+        hist = {"dates": [], "data": {}}
+        if os.path.exists(hist_path):
+            try:
+                hist = json.load(open(hist_path, encoding="utf-8"))
+            except Exception:
+                pass
+        today = datetime.date.today().isoformat()
+        snap_v1 = {k: v.get("winRate", 0.0) for k, v in snap.items()}
+        if not hist.get("dates") or hist["dates"][-1] != today:
+            hist["dates"].append(today)
+            hist["data"][today] = snap_v1
+            hist["dates"] = hist["dates"][-12:]          # guarda últimas 12 coletas
+            hist["data"] = {d: hist["data"][d] for d in hist["dates"]}
+        with open(hist_path, "w", encoding="utf-8") as f:
+            json.dump(hist, f, ensure_ascii=False)
+        # cópia direto para o asset do app (o workflow commita daí)
+        app_hist = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "assets", "meta", "rankings_history.json")
+        os.makedirs(os.path.dirname(app_hist), exist_ok=True)
+        with open(app_hist, "w", encoding="utf-8") as f:
+            json.dump(hist, f, ensure_ascii=False)
+        print(f"Histórico: {len(hist['dates'])} datas registradas")
         with open(os.path.join(OUT_DIR, "camp_full.json"), "w", encoding="utf-8") as f:
             json.dump(full, f, ensure_ascii=False)
         with open(os.path.join(OUT_DIR, "camp_patch.json"), "w", encoding="utf-8") as f:

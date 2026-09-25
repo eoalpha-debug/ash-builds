@@ -105,9 +105,10 @@ fun AppHeader(
 
     Row(
       verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.spacedBy(8.dp)
+      horizontalArrangement = Arrangement.spacedBy(0.dp),
+      modifier = Modifier
     ) {
-      // Online indicator pill
+      // Online indicator pill (alinhado totalmente à direita)
       Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -128,22 +129,6 @@ fun AppHeader(
           fontSize = 10.sp,
           fontWeight = FontWeight.ExtraBold,
           letterSpacing = 0.6.sp
-        )
-      }
-
-      // Profile avatar
-      Box(
-        modifier = Modifier
-          .size(32.dp)
-          .clip(CircleShape)
-          .background(MechaPrimary),
-        contentAlignment = Alignment.Center
-      ) {
-        Icon(
-          imageVector = Icons.Default.Person,
-          contentDescription = "Perfil do Jogador",
-          tint = MechaOnPrimary,
-          modifier = Modifier.size(20.dp)
         )
       }
     }

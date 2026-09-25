@@ -45,6 +45,6 @@ jobs:
         run: |
           git config --local user.email "bot@ash-builds.local"
           git config --local user.name "Ash Builds Bot"
-          git add app/src/main/assets/meta/
+          git add app/src/main/assets/meta/ tools/out/
           git diff --staged --quiet || git commit -m "🤖 Meta atualizado (sync automatico)"
           git push

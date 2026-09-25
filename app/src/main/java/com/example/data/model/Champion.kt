@@ -108,6 +108,9 @@ data class Champion(
   val counters: List<MatchupInfo> = emptyList(),
   val synergies: List<MatchupInfo> = emptyList(),
   val strongAgainst: List<MatchupInfo> = emptyList(),
+  /** Pro player que validou a build (nome/time BR). */
+  val proPlayerName: String = "",
+  val proPlayerTeam: String = "",
   val items: List<EquipmentItem>,
   val situationalItems: List<SituationalItem>,
   val arcanas: List<ArcanaItem>,

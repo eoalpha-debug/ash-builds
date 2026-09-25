@@ -197,7 +197,9 @@ val SYNTH_HERO_NAMES = mapOf(
 data class CountersJson(
     val counters: List<MatchupJson> = emptyList(),
     val synergies: List<MatchupJson> = emptyList(),
-    val strongAgainst: List<MatchupJson> = emptyList()
+    val strongAgainst: List<MatchupJson> = emptyList(),
+    val proName: String = "",
+    val proTeam: String = ""
 )
 
 @JsonClass(generateAdapter = true)
@@ -228,6 +230,13 @@ data class AdminOverridesJson(
     /** URL de publicação salva pelo painel (ignorada no app). */
     val url: String = "",
     val updatedAt: String = ""
+)
+
+/** Histórico de WR oficial por data (meta/rankings_history.json). */
+@JsonClass(generateAdapter = true)
+data class WrHistoryJson(
+    val dates: List<String> = emptyList(),
+    val data: Map<String, Map<String, Double>> = emptyMap()
 )
 
 @JsonClass(generateAdapter = true)

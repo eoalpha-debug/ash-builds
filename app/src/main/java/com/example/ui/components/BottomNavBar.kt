@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.MilitaryTech
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +38,8 @@ enum class AppTab(val label: String, val icon: ImageVector, val tag: String) {
   INICIO("Início", Icons.Default.GridView, "tab_inicio"),
   TIER_LIST("Tier List", Icons.Default.MilitaryTech, "tab_tier_list"),
   CAMPEOES("Campeões", Icons.Default.SportsEsports, "tab_campeoes"),
+  BUILDER("Build", Icons.Default.Build, "tab_builder"),
+  DRAFT("Draft", Icons.Default.Shield, "tab_draft"),
   OFFLINE("Offline", Icons.Default.CloudDownload, "tab_offline")
 }
 

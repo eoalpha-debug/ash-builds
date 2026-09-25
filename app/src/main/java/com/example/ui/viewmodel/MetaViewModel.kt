@@ -25,10 +25,12 @@ class MetaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: GuideRepository
     private val metaRepository: MetaRepository
+    private val database: AppDatabase
 
     init {
-        val database = AppDatabase.getDatabase(application)
-        repository = GuideRepository(database.savedGuideDao())
+        val db = AppDatabase.getDatabase(application)
+        this.database = db
+        repository = GuideRepository(db.savedGuideDao())
         metaRepository = MetaRepository.getInstance(application)
     }
 
@@ -46,6 +48,37 @@ class MetaViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Banner de aviso do painel admin (vazio = oculto). */
     val bannerMessage: StateFlow<String?> = metaRepository.bannerMessage
+
+    /** Catálogo completo de itens reais (para o Builder livre). */
+    val allItems = metaRepository.allItems
+
+    /** Builds livres criadas pelo usuário (Item Builder). */
+    val customBuilds: StateFlow<List<com.example.data.local.CustomBuildEntity>> =
+        database.customBuildDao().getAll()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun saveCustomBuild(name: String, champion: Champion?, items: List<com.example.data.meta.ItemJson>) {
+        if (name.isBlank() || items.isEmpty()) return
+        viewModelScope.launch {
+            database.customBuildDao().insert(
+                com.example.data.local.CustomBuildEntity(
+                    name = name.trim(),
+                    championId = champion?.id ?: "",
+                    championName = champion?.name ?: "",
+                    itemIds = items.joinToString("|") { it.itemId },
+                    itemNames = items.joinToString("|") { it.name }
+                )
+            )
+        }
+    }
+
+    fun deleteCustomBuild(id: Int) {
+        viewModelScope.launch { database.customBuildDao().deleteById(id) }
+    }
+
+    /** Histórico de WR de um herói (datas × valores) para o gráfico. */
+    fun getWrHistory(heroName: String): List<Pair<String, Double>> =
+        metaRepository.getWrHistory(heroName)
 
     val savedGuides: StateFlow<List<SavedGuideEntity>> = repository.allSavedGuides
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

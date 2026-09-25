@@ -17,5 +17,11 @@ data class SavedGuideEntity(
   val banRate: String,
   val buildSummary: String,
   val cacheSize: String,
-  val savedAt: Long = System.currentTimeMillis()
+  val savedAt: Long = System.currentTimeMillis(),
+  /** Nomes dos 6 itens, separados por | (ex.: "Mordida Voraz|Botas da Resistência..."). */
+  val itemsText: String = "",
+  /** Arcanas com quantidade (ex.: "9x Mutação|1x Lua Vermelha..."). */
+  val arcanasText: String = "",
+  /** Feitiço recomendado. */
+  val spellName: String = ""
 )

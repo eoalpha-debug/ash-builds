@@ -299,6 +299,14 @@ fun ChampionDetailScreen(
         }
       }
 
+      // 1.5 GRÁFICO WR (histórico oficial dos últimos syncs)
+      item {
+        val history = remember(champion.name) { viewModel.getWrHistory(champion.name) }
+        if (history.size >= 2) {
+          WrHistoryCard(points = history)
+        }
+      }
+
       // 2. SUB-TABS SELECTOR
       item {
         ScrollableTabRow(
@@ -339,7 +347,7 @@ fun ChampionDetailScreen(
       when (selectedTab) {
         DetailTab.BUILD -> {
           item {
-            BuildTabContent(champion = champion)
+            BuildTabContent(champion = champion, viewModel = viewModel)
           }
         }
         DetailTab.ARCANAS -> {
@@ -426,7 +434,7 @@ fun ChampionDetailScreen(
 
 // ================= BUILD TAB CONTENT =================
 @Composable
-fun BuildTabContent(champion: Champion) {
+fun BuildTabContent(champion: Champion, viewModel: MetaViewModel) {
   Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
     // Header
     Row(
@@ -441,6 +449,15 @@ fun BuildTabContent(champion: Champion) {
           fontWeight = FontWeight.Bold,
           color = MechaPrimary
         )
+        if (champion.proPlayerName.isNotBlank()) {
+          Text(
+            text = "Validada por Pro",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = MechaSecondary,
+            modifier = Modifier.padding(top = 3.dp)
+          )
+        }
         Text(
           text = champion.buildSubtitle,
           fontSize = 12.sp,
@@ -624,13 +641,21 @@ fun BuildTabContent(champion: Champion) {
     }
 
     // Matchups reais: counters, sinergias e quem o herói domina
-    MatchupsSection(champion = champion)
+    MatchupsSection(champion = champion, viewModel = viewModel)
   }
 }
 
 @Composable
-fun MatchupsSection(champion: Champion) {
+fun MatchupsSection(champion: Champion, viewModel: MetaViewModel) {
   if (champion.counters.isEmpty() && champion.synergies.isEmpty() && champion.strongAgainst.isEmpty()) return
+
+  // Resolve a imagem de cada matchup pelo nome do herói
+  fun imageOf(name: String): String? {
+    val clean = name.replace(Regex(" (Superior|Selva|Meio|Atirador|Suporte)$"), "").trim()
+    return viewModel.allChampions.value.firstOrNull {
+      it.name.equals(clean, ignoreCase = true)
+    }?.imageUrl
+  }
 
   Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
     Text(
@@ -641,19 +666,24 @@ fun MatchupsSection(champion: Champion) {
     )
 
     if (champion.counters.isNotEmpty()) {
-      MatchupGroup(title = "Fraco contra", tint = MechaError, list = champion.counters)
+      MatchupGroup(title = "Fraco contra", tint = MechaError, list = champion.counters, imageOf = ::imageOf)
     }
     if (champion.strongAgainst.isNotEmpty()) {
-      MatchupGroup(title = "Forte contra", tint = TrendGreen, list = champion.strongAgainst)
+      MatchupGroup(title = "Forte contra", tint = TrendGreen, list = champion.strongAgainst, imageOf = ::imageOf)
     }
     if (champion.synergies.isNotEmpty()) {
-      MatchupGroup(title = "Sinergia com", tint = MechaSecondary, list = champion.synergies)
+      MatchupGroup(title = "Sinergia com", tint = MechaSecondary, list = champion.synergies, imageOf = ::imageOf)
     }
   }
 }
 
 @Composable
-fun MatchupGroup(title: String, tint: androidx.compose.ui.graphics.Color, list: List<com.example.data.model.MatchupInfo>) {
+fun MatchupGroup(
+  title: String,
+  tint: androidx.compose.ui.graphics.Color,
+  list: List<com.example.data.model.MatchupInfo>,
+  imageOf: (String) -> String? = { null }
+) {
   Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
     Text(
       text = title.uppercase(),
@@ -676,6 +706,22 @@ fun MatchupGroup(title: String, tint: androidx.compose.ui.graphics.Color, list: 
             .padding(10.dp),
           horizontalAlignment = Alignment.CenterHorizontally
         ) {
+          val img = imageOf(m.name)
+          if (img != null) {
+            coil.compose.SubcomposeAsyncImage(
+              model = coil.request.ImageRequest.Builder(LocalContext.current)
+                .data(img)
+                .crossfade(true)
+                .build(),
+              contentDescription = m.name,
+              modifier = Modifier
+                .padding(bottom = 6.dp)
+                .size(42.dp)
+                .clip(RoundedCornerShape(10.dp)),
+              loading = { Box(Modifier.size(42.dp).background(MechaSurfaceContainerHigh)) },
+              error = { Box(Modifier.size(42.dp).background(MechaSurfaceContainerHigh)) }
+            )
+          }
           Text(
             text = m.name,
             fontSize = 12.sp,
@@ -1266,6 +1312,61 @@ fun CombosTabContent(champion: Champion) {
             }
           }
         }
+      }
+    }
+  }
+}
+
+@Composable
+fun WrHistoryCard(points: List<Pair<String, Double>>) {
+  Box(
+    modifier = Modifier
+      .fillMaxWidth()
+      .clip(RoundedCornerShape(12.dp))
+      .background(MechaSurfaceContainerHigh)
+      .padding(12.dp)
+  ) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+          text = "WR OFICIAL — ÚLTIMAS ATUALIZAÇÕES",
+          fontSize = 10.sp,
+          fontWeight = FontWeight.ExtraBold,
+          color = MechaSecondary,
+          letterSpacing = 0.5.sp
+        )
+        val first = points.first().second
+        val last = points.last().second
+        val delta = last - first
+        Text(
+          text = "${if (delta >= 0) "+" else ""}${"%.1f".format(delta)}%",
+          fontSize = 11.sp,
+          fontWeight = FontWeight.Bold,
+          color = if (delta >= 0) TrendGreen else MechaError
+        )
+      }
+      androidx.compose.foundation.Canvas(
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(56.dp)
+      ) {
+        val pts = points.map { it.second.toFloat() }
+        val min = pts.min() - 0.5f
+        val max = pts.max() + 0.5f
+        val stepX = if (pts.size > 1) size.width / (pts.size - 1) else size.width
+        val path = androidx.compose.ui.graphics.Path()
+        pts.forEachIndexed { i, v ->
+          val x = stepX * i
+          val y = size.height - ((v - min) / (max - min)) * size.height
+          if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+          drawCircle(color = MechaPrimaryContainer, radius = 3.dp.toPx(), center = androidx.compose.ui.geometry.Offset(x, y))
+        }
+        drawPath(path, color = MechaPrimaryContainer, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()))
+      }
+      Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = points.first().first, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = "${"%.1f".format(points.first().second)}% → ${"%.1f".format(points.last().second)}%", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = points.last().first, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
       }
     }
   }

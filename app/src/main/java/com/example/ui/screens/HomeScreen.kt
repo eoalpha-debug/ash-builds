@@ -3,6 +3,9 @@ package com.example.ui.screens
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -974,7 +977,7 @@ fun HomeScreen(
           // Card de detalhes da mudança (estilo nota oficial de patch)
           selectedNotice?.let { notice ->
             val hero = allChampions.firstOrNull { it.name.equals(notice.heroName, ignoreCase = true) }
-            androidx.compose.material3.AlertDialog(
+                    androidx.compose.material3.AlertDialog(
               onDismissRequest = { selectedNotice = null },
               confirmButton = {
                 Button(
@@ -1019,7 +1022,12 @@ fun HomeScreen(
                 }
               },
               text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(
+                  verticalArrangement = Arrangement.spacedBy(8.dp),
+                  modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .heightIn(min = 80.dp, max = 420.dp)
+                ) {
                   Text(
                     text = if (notice.details.isNotBlank()) notice.details else notice.description,
                     fontSize = 13.sp,

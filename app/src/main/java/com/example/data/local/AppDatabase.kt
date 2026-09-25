@@ -5,10 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [SavedGuideEntity::class, MetaCacheEntity::class], version = 2, exportSchema = false)
+@Database(entities = [SavedGuideEntity::class, MetaCacheEntity::class, CustomBuildEntity::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
   abstract fun savedGuideDao(): SavedGuideDao
   abstract fun metaCacheDao(): MetaCacheDao
+  abstract fun customBuildDao(): CustomBuildDao
 
   companion object {
     @Volatile

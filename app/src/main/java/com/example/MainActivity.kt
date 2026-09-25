@@ -22,6 +22,8 @@ import com.example.ui.components.AppTab
 import com.example.ui.components.BottomNavBar
 import com.example.ui.screens.ChampionDetailScreen
 import com.example.ui.screens.ChampionsListScreen
+import com.example.ui.screens.DraftCoachScreen
+import com.example.ui.screens.ItemBuilderScreen
 import com.example.ui.screens.HomeScreen
 import com.example.ui.screens.OfflineModeScreen
 import com.example.ui.screens.TierListScreen
@@ -73,6 +75,8 @@ fun HoKMetaLabApp(
     currentTab == AppTab.TIER_LIST -> "Classificação Tier List"
     currentTab == AppTab.CAMPEOES -> "Catálogo de Heróis"
     currentTab == AppTab.OFFLINE -> "Armazenamento Offline"
+    currentTab == AppTab.DRAFT -> "Coach de Draft"
+    currentTab == AppTab.BUILDER -> "Construtor de Build"
     else -> "Meta Global"
   }
 
@@ -131,6 +135,17 @@ fun HoKMetaLabApp(
           }
           AppTab.CAMPEOES -> {
             ChampionsListScreen(
+              viewModel = viewModel,
+              onNavigateToChampionDetail = { champId ->
+                detailChampionId = champId
+              }
+            )
+          }
+          AppTab.BUILDER -> {
+            ItemBuilderScreen(viewModel = viewModel)
+          }
+          AppTab.DRAFT -> {
+            DraftCoachScreen(
               viewModel = viewModel,
               onNavigateToChampionDetail = { champId ->
                 detailChampionId = champId

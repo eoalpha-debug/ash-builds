@@ -392,6 +392,8 @@ object ChampionJsonMapper {
             counters = countersData?.counters?.map { MatchupInfo(it.name, it.role, it.effect) } ?: emptyList(),
             synergies = countersData?.synergies?.map { MatchupInfo(it.name, it.role, it.effect) } ?: emptyList(),
             strongAgainst = countersData?.strongAgainst?.map { MatchupInfo(it.name, it.role, it.effect) } ?: emptyList(),
+            proPlayerName = countersData?.proName ?: "",
+            proPlayerTeam = countersData?.proTeam ?: "",
             situationalItems = situationalFor(),
             arcanas = proArcanas.ifEmpty { realArcanas },
             arcanaStatsSummary = arcanasSummary,

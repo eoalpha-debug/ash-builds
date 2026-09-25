@@ -21,8 +21,11 @@ class GuideRepository(private val dao: SavedGuideDao) {
       winRate = champion.winRate,
       pickRate = champion.pickRate,
       banRate = champion.banRate,
-      buildSummary = "${champion.coreItemSummary} • Arcanas 150 & Combos",
-      cacheSize = cacheSizeMb
+      buildSummary = "${champion.coreItemSummary} • Arcanas 150",
+      cacheSize = cacheSizeMb,
+      itemsText = champion.items.joinToString("|") { it.name },
+      arcanasText = champion.arcanas.joinToString("|") { "${it.count}x ${it.name}" },
+      spellName = champion.spellName
     )
     dao.insertGuide(entity)
   }
