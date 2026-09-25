@@ -216,6 +216,34 @@ class MetaRepository private constructor(context: Context) {
             .filter { it.id.isNotBlank() && it.nome.isNotBlank() }
             .associate { it.nome to "https://hokpro.gg/api/image/${it.id}" }
 
+        // Heróis que existem no Camp oficial mas não no heroes.json embutido (ex.: Yuan Ge, Flowborn extra)
+        val normK = { s: String -> s.lowercase(java.util.Locale.ROOT).replace(Regex("[^a-z0-9]"), "") }
+        val existingKeys = heroes.flatMap { listOf(normK(it.slug), normK(it.name)) }.toSet()
+        val syntheticHeroes = campFull.mapNotNull { c ->
+            val slug = CAMP_PT_SLUG_ALIASES[c.slug] ?: c.slug
+            if (existingKeys.contains(normK(slug)) || existingKeys.contains(normK(c.name))) return@mapNotNull null
+            val enName = SYNTH_HERO_NAMES[slug] ?: c.name
+            val rolesFromLane = when {
+                c.lane.contains("superior", true) || c.lane.contains("Clash", true) -> listOf("Fighter")
+                c.lane.contains("Caça", true) || c.lane.contains("Jungle", true) -> listOf("Assassin")
+                c.lane.contains("meio", true) || c.lane.contains("Mid", true) -> listOf("Mage")
+                c.lane.contains("inferior", true) || c.lane.contains("Farm", true) -> listOf("Marksman")
+                else -> listOf("Support")
+            }
+            HeroJson(
+                slug = slug,
+                name = enName,
+                tierKey = c.hot.lowercase(java.util.Locale.ROOT).ifBlank { "b" },
+                roles = rolesFromLane,
+                difficulty = 3,
+                classType = rolesFromLane.first(),
+                squareImage = c.icon,
+                summary = "",
+                skills = emptyList(),
+                rates = emptyList()
+            )
+        }
+
         val hiddenSlugs = adminOverrides?.hiddenChampions.orEmpty()
         val normSlug = { s: String -> s.lowercase(java.util.Locale.ROOT).replace(Regex("[^a-z0-9]"), "") }
         val isHidden = { s: String -> hiddenSlugs.any { normSlug(it) == normSlug(s) } }
@@ -233,7 +261,7 @@ class MetaRepository private constructor(context: Context) {
             return c
         }
 
-        _champions.value = heroes.mapNotNull { hero ->
+        _champions.value = (heroes + syntheticHeroes).mapNotNull { hero ->
             if (isHidden(hero.slug)) return@mapNotNull null
             val mock = MockMetaDatabase.allChampions.firstOrNull { ChampionJsonMapper.matchesKey(it.id, hero.slug) || ChampionJsonMapper.matchesKey(it.name, hero.name) }
             val snap = campSnapshot.entries.firstOrNull { ChampionJsonMapper.matchesKey(it.key, hero.slug) || ChampionJsonMapper.matchesKey(it.key, hero.name) }?.value

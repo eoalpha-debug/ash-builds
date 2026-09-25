@@ -178,7 +178,18 @@ val CAMP_PT_SLUG_ALIASES = mapOf(
     "ser-do-fluxo-tanque" to "flowborn-tank",
     "ser-do-fluxo-atirador" to "flowborn-marksman",
     "ser-do-fluxo-assassino" to "flowborn-assassin",
-    "ser-do-fluxo-apoio" to "flowborn-roamer"
+    "ser-do-fluxo-apoio" to "flowborn-roamer",
+    "agu" to "agudo",
+    "zhaojun" to "wang-zhaojun",
+    "consorte-yu" to "consort-yu",
+    "changgong" to "gao-changgong"
+)
+
+/** Nomes em EN para heróis que só existem em PT no Camp (quando ausentes do heroes.json). */
+val SYNTH_HERO_NAMES = mapOf(
+    "yuan-ge" to "Yuan Ge",
+    "flowborn-assassin" to "Flowborn (Assassin)",
+    "flowborn-roamer" to "Flowborn (Roamer)"
 )
 
 /** Counters/sinergias reais (meta/counters.json). */
@@ -214,6 +225,8 @@ data class AdminOverridesJson(
     val statOverrides: Map<String, StatOverrideJson> = emptyMap(),
     /** Título/subtítulo manual por slug (ex.: "A Rainha Mecânica"). */
     val titleOverrides: Map<String, String> = emptyMap(),
+    /** URL de publicação salva pelo painel (ignorada no app). */
+    val url: String = "",
     val updatedAt: String = ""
 )
 
