@@ -162,13 +162,18 @@ textarea{font-family:ui-monospace,monospace;min-height:92px;resize:vertical;}
 </div>
 
 <div class="card full">
-  <h2><span class="k">EXPORT</span> Gerar e publicar</h2>
-  <p class="desc">1) Gere o JSON 2) Baixe/copie 3) Suba no seu repo/painel 4) No app, toque em Sincronizar.</p>
-  <button class="btn" onclick="build()">✔ Validar e gerar JSON</button>
-  <button class="btn ghost" onclick="download()">⬇ Baixar arquivo</button>
-  <button class="btn ghost" onclick="copyClip()">📋 Copiar</button>
-  <button class="btn ghost" onclick="saveLocal()">💾 Salvar no navegador</button>
-  <button class="btn ghost" onclick="loadLocal()">📂 Recarregar do navegador</button>
+  <h2><span class="k">PUBLICAR</span> Suba direto para o app</h2>
+  <p class="desc">Clique em Publicar — o painel sobe sozinho pro GitHub e o app atualiza quando você tocar em Sincronizar no celular.</p>
+  <div class="row" style="align-items:center">
+    <div style="flex:2;min-width:260px">
+      <button class="btn publish" style="margin:0" onclick="publishNow()">🚀 Salvar e publicar no GitHub</button>
+    </div>
+    <div style="flex:1;min-width:200px;display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn ghost" title="Baixa uma cópia local do JSON (backups)" onclick="download()">⬇ Backup</button>
+      <button class="btn ghost" title="Salva suas edições neste navegador sem publicar" onclick="saveLocal()">💾 Rascunho</button>
+      <button class="btn ghost" title="Mostra o JSON gerado (debug)" onclick="build()">🔍 Ver JSON</button>
+    </div>
+  </div>
   <pre id="preview"></pre>
 </div>
 
@@ -179,9 +184,8 @@ textarea{font-family:ui-monospace,monospace;min-height:92px;resize:vertical;}
 <div id="publishBar" style="position:sticky;bottom:0;background:rgba(17,10,31,.97);border-top:1px solid var(--line);padding:14px 22px;backdrop-filter:saturate(140%)">
   <div style="max-width:1180px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap">
     <button class="btn publish" onclick="publishNow()">🚀 Salvar e publicar no GitHub</button>
-    <button class="btn ghost" onclick="download()">⬇ Baixar JSON (backup)</button>
-    <button class="btn ghost" onclick="copyClip()">📋 Copiar</button>
-    <button class="btn ghost" onclick="saveLocal()">💾 Salvar no navegador</button>
+    <button class="btn ghost" onclick="download()">⬇ Backup</button>
+    <button class="btn ghost" onclick="saveLocal()">💾 Rascunho</button>
   </div>
 </div>
 
