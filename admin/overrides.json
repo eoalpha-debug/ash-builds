@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "featuredHero": "florentino",
+  "featuredHero": "",
   "bannerMessage": "",
-  "tierOverrides": {},
+  "tierOverrides": {
+    "luban-no-7": "B"
+  },
   "customBuilds": {},
   "patchExtras": [],
   "patchHidden": [],
@@ -10,5 +12,5 @@
   "statOverrides": {},
   "titleOverrides": {},
   "url": "",
-  "updatedAt": "2026-09-25T01:31:16.831Z"
+  "updatedAt": "2026-09-25T04:04:37.912Z"
 }
