@@ -12,10 +12,11 @@ enum class Lane(val labelPt: String, val chipShort: String, val iconName: String
 }
 
 enum class HeroTier(val badge: String, val titlePt: String, val descriptionPt: String) {
-  SS("SS", "Dominantes", "Ban quase obrigatÃ³rio ou prioridade total no draft"),
-  S("S", "Muito Fortes no Meta", "Excelente consistÃªncia e impacto decisivo"),
-  A("A", "Escolhas SÃ³lidas e Balanceadas", "Eficientes em composiÃ§Ãµes padronizadas"),
-  B("B", "Situacionais / Requer Sinergia", "Dependem de counter-picks especÃ­ficos ou comps dedicadas")
+  SS("SS", "Dominantes", "Ban quase obrigatório ou prioridade total no draft"),
+  S("S", "Muito Fortes no Meta", "Excelente consistência e impacto decisivo"),
+  A("A", "Escolhas Sólidas e Balanceadas", "Eficientes em composições padronizadas"),
+  B("B", "Situacionais / Requer Sinergia", "Dependem de counter-picks específicos ou comps dedicadas"),
+  C("C", "Fora do Meta", "Escolhas fracas no patch atual — jogue apenas com maestria")
 }
 
 data class EquipmentItem(

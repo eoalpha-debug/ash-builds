@@ -281,7 +281,7 @@ class MetaRepository private constructor(context: Context) {
                 hero = hero,
                 items = items,
                 arcanas = arcanas,
-                tierOverride = tierOverride?.let { parseTier(it) } ?: snap?.tier?.let { parseTier(it) },
+                tierOverride = tierOverride?.let { parseTier(it) },
                 ratesOverride = snap?.let { HeroRateJson(winRate = it.winRate, pickRate = it.pickRate, banRate = it.banRate) },
                 camp = campHero,
                 proBuild = proBuilds.entries.firstOrNull { ChampionJsonMapper.matchesKey(it.key, hero.slug) }?.value,
@@ -335,10 +335,27 @@ class MetaRepository private constructor(context: Context) {
     private fun parseRate(s: String): Double =
         s.removeSuffix("%").replace(",", ".").toDoubleOrNull() ?: 0.0
 
+    /**
+     * HOK Pro usa S/A/B/C/D → app usa SS/S/A/B/C:
+     * S→SS, A→S, B→A, C→B, D→C. (SS e SS+ do site também viram SS direto.)
+     */
+    private fun hoKProTier(s: String): HeroTier? = when (s.uppercase(Locale.ROOT)) {
+        "SS+" -> HeroTier.SS
+        "SS" -> HeroTier.SS
+        "S" -> HeroTier.SS
+        "A" -> HeroTier.S
+        "B" -> HeroTier.A
+        "C" -> HeroTier.B
+        "D" -> HeroTier.C
+        else -> null
+    }
+
+    /** Converte tier (string do Camp/admin) para nosso enum SS/S/A/B/C. */
     private fun parseTier(s: String): HeroTier = when (s.uppercase(Locale.ROOT)) {
         "SS" -> HeroTier.SS
         "S" -> HeroTier.S
         "A" -> HeroTier.A
+        "C" -> HeroTier.C
         else -> HeroTier.B
     }
 
@@ -432,7 +449,7 @@ class MetaRepository private constructor(context: Context) {
         val result = mutableMapOf<String, HeroTier>()
         response.tierList.values.forEach { tiers ->
             tiers.forEach { (tierName, heroes) ->
-                val tier = parseTier(tierName)
+                val tier = hoKProTier(tierName) ?: HeroTier.C
                 heroes.forEach { rawName ->
                     val cleanName = laneSuffixes.fold(rawName) { acc, suffix ->
                         acc.removeSuffix(" $suffix").trim()

@@ -95,8 +95,9 @@ fun TierListScreen(
   val aHeroes = remember(allChampions, selectedLane, searchQuery) { viewModel.getFilteredTierHeroes(HeroTier.A) }
 
   val bHeroes = remember(allChampions, selectedLane, searchQuery) { viewModel.getFilteredTierHeroes(HeroTier.B) }
+  val cHeroes = remember(allChampions, selectedLane, searchQuery) { viewModel.getFilteredTierHeroes(HeroTier.C) }
 
-  val totalVisible = ssHeroes.size + sHeroes.size + aHeroes.size + bHeroes.size
+  val totalVisible = ssHeroes.size + sHeroes.size + aHeroes.size + bHeroes.size + cHeroes.size
 
   LazyColumn(
     modifier = modifier
@@ -391,6 +392,27 @@ fun TierListScreen(
       }
     }
 
+    // ==================== TIER C ====================
+    if (cHeroes.isNotEmpty()) {
+      item {
+        TierSectionHeader(
+          badgeText = "C",
+          title = "Fora do Meta",
+          subtitle = "Escolhas fracas no patch — jogue apenas com maestria",
+          countText = "${cHeroes.size} Heróis",
+          badgeBg = MechaSurfaceContainer,
+          badgeColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+      }
+
+      items(cHeroes) { hero ->
+        TierAHeroCard(
+          champion = hero,
+          onClick = { onNavigateToChampionDetail(hero.id) }
+        )
+      }
+    }
+
     // 5. Metodologia e Critérios de Avaliação Card
     item {
       Box(
@@ -466,7 +488,8 @@ fun TierSectionHeader(
   ) {
     Row(
       verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.spacedBy(8.dp)
+      horizontalArrangement = Arrangement.spacedBy(8.dp),
+      modifier = Modifier.weight(1f)
     ) {
       Box(
         modifier = Modifier
@@ -485,29 +508,37 @@ fun TierSectionHeader(
       Column {
         Text(
           text = title,
-          fontSize = 17.sp,
+          fontSize = 16.sp,
           fontWeight = FontWeight.Bold,
-          color = MechaPrimary
+          color = MechaPrimary,
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
         )
         Text(
           text = subtitle,
           fontSize = 11.sp,
-          color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+          color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
         )
       }
     }
+
+    Spacer(modifier = Modifier.width(8.dp))
 
     Box(
       modifier = Modifier
         .clip(CircleShape)
         .background(MechaSurfaceContainerHighest)
-        .padding(horizontal = 8.dp, vertical = 3.dp)
+        .padding(horizontal = 10.dp, vertical = 3.dp)
     ) {
       Text(
         text = countText,
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
-        color = badgeColor
+        color = badgeColor,
+        maxLines = 1,
+        softWrap = false
       )
     }
   }

@@ -129,6 +129,7 @@ object ChampionJsonMapper {
         "ss" -> HeroTier.SS
         "s" -> HeroTier.S
         "a" -> HeroTier.A
+        "c" -> HeroTier.C
         else -> HeroTier.B
     }
 

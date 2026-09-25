@@ -208,7 +208,7 @@ let data = {"version":2,"featuredHero":"","bannerMessage":"","tierOverrides":{},
 function addTierRow(slug="", tier="S"){
   const d=document.createElement('div');d.className='row tierRow';d.style.marginTop='6px';
   d.innerHTML=`<input list="slugList" value="${slug}" placeholder="slug (ex.: lam)" style="flex:2">
-    <select style="flex:0 0 80px">${['SS','S','A','B'].map(t=>`<option ${t===tier?'selected':''}>${t}</option>`).join('')}</select>
+    <select style="flex:0 0 80px">${['SS','S','A','B','C'].map(t=>`<option ${t===tier?'selected':''}>${t}</option>`).join('')}</select>
     <button class="btn danger" onclick="this.parentElement.remove()">✕</button>`;
   $('#tierRows').append(d);
 }
