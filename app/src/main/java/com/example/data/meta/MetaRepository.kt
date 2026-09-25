@@ -435,7 +435,8 @@ class MetaRepository private constructor(context: Context) {
     }
 
     /** URL do micro-backend com snapshot do Camp (configurÃ¡vel; vazio = desativado). */
-    var snapshotUrlOverride: String? = null
+    var snapshotUrlOverride: String? =
+        "https://raw.githubusercontent.com/eoalpha-debug/ash-builds/main/app/src/main/assets/meta/rankings.json"
 
     /** URL do painel admin overrides.json (configurável; padrão no companion). */
     var adminOverridesUrl: String? = null

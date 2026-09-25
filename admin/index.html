@@ -95,6 +95,13 @@ textarea{font-family:ui-monospace,monospace;min-height:92px;resize:vertical;}
 </div>
 
 <div class="card">
+  <h2><span class="k">ROBÔ</span> Atualizar dados do meta</h2>
+  <p class="desc">Dispara o robô no GitHub que baixa os dados oficiais novinhos (WR, tiers e builds do Camp + comunidade BR) e sobe pro repo. Leva ~2 minutos. Depois, sincronize no app.</p>
+  <button class="btn publish" style="width:100%;justify-content:center" onclick="triggerSync()">🤖 Atualizar dados do meta agora</button>
+  <div class="desc mono" id="syncStatus" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
   <h2><span class="k">HOME</span> Destaque & Banner</h2>
   <p class="desc">Heroesia fixada no topo da Home + aviso opcional com destaque dourado.</p>
   <label>Slug do herói fixado</label>
@@ -405,6 +412,31 @@ async function publishNow(){
     toast('✅ Publicado! O app puxa na próxima sincronização.');
     $('#preview').textContent=JSON.stringify(data,null,2);$('#preview').style.display='block';
   }catch(e){
+    toast('⚠️ '+e.message);
+  }
+}
+
+// ---------------- ROBÔ DE SYNC (GitHub Actions) ----------------
+async function triggerSync(){
+  const pat=localStorage.getItem(LS_PAT);
+  if(!pat){$('#tokenBox').classList.add('show');return toast('Configure o token do GitHub primeiro (🔒 no topo)')}
+  $('#syncStatus').textContent='Disparando robô…';
+  try{
+    // workflow_dispatch precisa do ID/nome do workflow
+    const wfs=await fetch('https://api.github.com/repos/eoalpha-debug/ash-builds/actions/workflows',{headers:{Authorization:'Bearer '+pat,Accept:'application/vnd.github+json'}});
+    if(!wfs.ok)throw new Error('Repo não encontrado/token inválido');
+    const wf=(await wfs.json()).workflows.find(w=>w.path.includes('sync-meta.yml'));
+    if(!wf)throw new Error('Workflow sync-meta.yml não achado. Faça o push do arquivo .github/workflows/sync-meta.yml primeiro.');
+    const r=await fetch(`https://api.github.com/repos/eoalpha-debug/ash-builds/actions/workflows/${wf.id}/dispatches`,{
+      method:'POST',
+      headers:{Authorization:'Bearer '+pat,Accept:'application/vnd.github+json','Content-Type':'application/json'},
+      body:JSON.stringify({ref:'main'})
+    });
+    if(!r.ok&&r.status!==204)throw new Error('Erro '+r.status);
+    $('#syncStatus').textContent='🤖 Robô disparado! Aguarde ~2 min e o repo vai atualizar sozinho. Depois: app → Offline → Sincronizar.';
+    toast('Robô disparado ✔ Aguarde ~2min');
+  }catch(e){
+    $('#syncStatus').textContent='⚠️ '+e.message;
     toast('⚠️ '+e.message);
   }
 }
