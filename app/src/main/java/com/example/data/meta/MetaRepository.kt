@@ -334,6 +334,19 @@ class MetaRepository private constructor(context: Context) {
         // counter dele aqui (dados reais cruzados) — garante 4+ counters por campeão
         val key = { n: String -> ChampionJsonMapper.normalizeMatchupName(n) }
         val currentCounters = _champions.value
+
+        // Frequência de counters por rota+classe (agregado real) para preencher heróis novos
+        val laneClassCounters = currentCounters
+            .filter { it.counters.size >= 3 }
+            .groupBy { it.lane to it.heroClass }
+            .mapValues { (_, champs) ->
+                champs.flatMap { it.counters }
+                    .groupBy { key(it.name) }
+                    .entries
+                    .sortedByDescending { it.value.size }
+                    .map { it.key }
+            }
+
         val enriched = currentCounters.map { champ ->
             val directNames = champ.counters.map { key(it.name) }.toSet()
             val extra = currentCounters.filter { other ->
@@ -341,10 +354,25 @@ class MetaRepository private constructor(context: Context) {
             }.map { other ->
                 com.example.data.model.MatchupInfo(other.name, other.lane.chipShort, 0)
             }
-            val merged = (champ.counters + extra)
+            var merged = (champ.counters + extra)
                 .filter { key(it.name) != key(champ.name) }
                 .distinctBy { key(it.name) }
-                .take(4)
+
+            // Última camada: agregado real da rota/classe (heróis novos sem dados próprios)
+            if (merged.size < 4) {
+                val existing = merged.map { key(it.name) }.toMutableSet()
+                val pool = laneClassCounters[champ.lane to champ.heroClass].orEmpty() +
+                    laneClassCounters[champ.lane].values.flatten()
+                for (k in pool) {
+                    if (merged.size >= 4) break
+                    if (k == key(champ.name) || k in existing) continue
+                    currentCounters.firstOrNull { key(it.name) == k }?.let {
+                        merged += com.example.data.model.MatchupInfo(it.name, it.lane.chipShort, 0)
+                        existing += k
+                    }
+                }
+            }
+            merged = merged.take(4)
             if (directNames.isEmpty() && merged.isEmpty()) champ else champ.copy(counters = merged)
         }
         _champions.value = enriched

@@ -12,6 +12,7 @@ Saída:   app/src/main/assets/meta/counters.json
 import asyncio
 import json
 import os
+import re
 import sys
 
 import httpx
@@ -65,8 +66,44 @@ def norm_entries(lst):
     return out[:4]
 
 
+def scrape_hokstats_countered_by():
+    """hokstats.gg/counters/ — 'Countered by' e 'Strong against' reais por herói."""
+    import html as html_mod
+    try:
+        html = httpx.get("https://hokstats.gg/counters/", timeout=30,
+                         headers={"User-Agent": "Mozilla/5.0"}).text
+    except Exception as e:
+        print("hokstats FAIL:", e)
+        return {}, {}
+    countered = {}
+    strong = {}
+    for art in re.split(r'<article[^>]*data-counter-hero="', html)[1:]:
+        slug = art.split('"', 1)[0]
+        m = re.search(r"Countered by</h3>(.*?)</div>", art, re.S)
+        if m:
+            names = [html_mod.unescape(n).strip() for n in re.findall(r">([^<>]+)</a>", m.group(1))]
+            names = [n for n in names if n and "No verified" not in n]
+            if names:
+                countered[slug] = names[:5]
+        m2 = re.search(r"Strong against</h3>(.*?)</div>", art, re.S)
+        if m2:
+            names = [html_mod.unescape(n).strip() for n in re.findall(r">([^<>]+)</a>", m2.group(1))]
+            names = [n for n in names if n and "No verified" not in n]
+            if names:
+                strong[slug] = names[:5]
+    return countered, strong
+
+
 async def main():
     heroes = json.load(open(IN, encoding="utf-8"))
+    # Fonte 2: hokstats.gg — counters verificados por herói (preenche até 4+)
+    hokstats_cb, hokstats_strong = scrape_hokstats_countered_by()
+    print(f"hokstats: {len(hokstats_cb)} counterd-by, {len(hokstats_strong)} strong-against")
+    # Reverso: X 'strong against' Y => Y e counterado por X (dados reais)
+    reverse_cb = {}
+    for src, victims in hokstats_strong.items():
+        for v in victims:
+            reverse_cb.setdefault(v, []).append(src)
     result = {}
     async with httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
         for i, h in enumerate(heroes, 1):
@@ -81,8 +118,22 @@ async def main():
                         break
             if data:
                 pro = data.get("proPlayer") or {}
+                # Mescla: counters diretos (hokpro) + countered-by (hokstats), dedupe, até 6
+                direct = norm_entries(data.get("counters"))
+                seen = {c["name"].lower() for c in direct}
+                extra = []
+                def add_nome(nome):
+                    if nome and nome.lower() not in seen:
+                        extra.append({"name": nome, "role": "", "effect": 0})
+                        seen.add(nome.lower())
+                # 1) countered-by explícito do hokstats
+                for nome in hokstats_cb.get(h["slug"], []):
+                    add_nome(nome)
+                # 2) reverso do strong-against do hokstats (X forte contra este herói)
+                for nome in reverse_cb.get(h["name"], []):
+                    add_nome(nome)
                 result[slug] = {
-                    "counters": norm_entries(data.get("counters")),
+                    "counters": (direct + extra)[:6],
                     "synergies": norm_entries(data.get("synergies")),
                     "strongAgainst": norm_entries(data.get("strongAgainst")),
                     "proName": pro.get("name", ""),
