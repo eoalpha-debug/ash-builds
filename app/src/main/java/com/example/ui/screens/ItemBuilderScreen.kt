@@ -107,9 +107,9 @@ fun ItemBuilderScreen(
             Text("SUA BUILD (${build.size}/6)", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = MechaSecondary, letterSpacing = 0.6.sp)
             Row {
               if (build.isNotEmpty()) {
-                // SALVAR com nome (inventÃ¡rio)
+                // SALVAR com nome (inventario)
                 TextButton(onClick = { buildName = ""; showSaveDialog = true }) {
-                  Text("ðŸ’¾ Salvar", fontWeight = FontWeight.Bold, color = MechaPrimaryContainer, fontSize = 13.sp)
+                  Text("Salvar build", fontWeight = FontWeight.Bold, color = MechaPrimaryContainer, fontSize = 13.sp)
                 }
                 IconButton(onClick = { build = emptyList() }) {
                   Icon(Icons.Default.Delete, "Limpar", tint = MechaError, modifier = Modifier.size(18.dp))

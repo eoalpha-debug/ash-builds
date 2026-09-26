@@ -74,6 +74,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.data.meta.ChampionJsonMapper
 import com.example.data.model.ArcanaItem
 import com.example.data.model.Champion
 import com.example.data.model.EquipmentItem
@@ -649,11 +650,12 @@ fun BuildTabContent(champion: Champion, viewModel: MetaViewModel) {
 fun MatchupsSection(champion: Champion, viewModel: MetaViewModel) {
   if (champion.counters.isEmpty() && champion.synergies.isEmpty() && champion.strongAgainst.isEmpty()) return
 
-  // Resolve a imagem de cada matchup pelo nome do herói
+  // Resolve a imagem de cada matchup pelo nome do herói (PT/EN, com aliases)
   fun imageOf(name: String): String? {
-    val clean = name.replace(Regex(" (Superior|Selva|Meio|Atirador|Suporte)$"), "").trim()
+    val known = viewModel.allChampions.value.map { it.name }
+    val resolved = ChampionJsonMapper.resolveMatchupName(name, known)
     return viewModel.allChampions.value.firstOrNull {
-      it.name.equals(clean, ignoreCase = true)
+      it.name.equals(resolved, ignoreCase = true)
     }?.imageUrl
   }
 
@@ -731,15 +733,6 @@ fun MatchupGroup(
             overflow = TextOverflow.Ellipsis,
             lineHeight = 14.sp
           )
-          if (m.effectiveness > 0) {
-            Text(
-              text = "${m.effectiveness}% eficácia",
-              fontSize = 10.sp,
-              color = tint,
-              fontWeight = FontWeight.Bold,
-              modifier = Modifier.padding(top = 3.dp)
-            )
-          }
         }
       }
     }

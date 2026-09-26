@@ -171,7 +171,9 @@ fun DraftCoachScreen(
         }
       } else {
         items(countersOfEnemy) { m: MatchupInfo ->
-          val champ = allChampions.firstOrNull { it.name.equals(m.name.removeSuffix(" Superior").removeSuffix(" Selva").removeSuffix(" Meio").removeSuffix(" Atirador").removeSuffix(" Suporte").trim(), true) }
+          val known = allChampions.map { it.name }
+          val resolvedName = com.example.data.meta.ChampionJsonMapper.resolveMatchupName(m.name, known)
+          val champ = allChampions.firstOrNull { it.name.equals(resolvedName, ignoreCase = true) }
           if (champ != null) {
             Box(
               modifier = Modifier
@@ -190,10 +192,6 @@ fun DraftCoachScreen(
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                   )
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                  Text("${m.effectiveness}%", fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = TrendGreen)
-                  Text("eficácia", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
               }
             }

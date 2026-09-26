@@ -3,6 +3,7 @@ package com.example.ui.screens
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DownloadDone
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.MilitaryTech
@@ -977,71 +979,98 @@ fun HomeScreen(
           // Card de detalhes da mudança (estilo nota oficial de patch)
           selectedNotice?.let { notice ->
             val hero = allChampions.firstOrNull { it.name.equals(notice.heroName, ignoreCase = true) }
-                    androidx.compose.material3.AlertDialog(
+            androidx.compose.ui.window.Dialog(
               onDismissRequest = { selectedNotice = null },
-              confirmButton = {
-                Button(
-                  onClick = { selectedNotice = null },
-                  colors = ButtonDefaults.buttonColors(
-                    containerColor = MechaPrimaryContainer,
-                    contentColor = MechaOnPrimaryContainer
-                  )
-                ) { Text("Entendi") }
-              },
-              containerColor = MechaSurfaceContainer,
-              title = {
-                Row(
-                  verticalAlignment = Alignment.CenterVertically,
-                  horizontalArrangement = Arrangement.spacedBy(10.dp)
+              properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
+            ) {
+              androidx.compose.foundation.layout.BoxWithConstraints(
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .fillMaxHeight(0.88f)
+                  .padding(horizontal = 14.dp)
+              ) {
+                androidx.compose.material3.Surface(
+                  shape = RoundedCornerShape(18.dp),
+                  color = MechaSurfaceContainer,
+                  modifier = Modifier.fillMaxSize()
                 ) {
-                  if (hero != null) {
-                    com.example.ui.components.ChampionAvatar(
-                      champion = hero,
-                      size = 44.dp,
-                      shape = RoundedCornerShape(10.dp)
-                    )
+                  Column(
+                    modifier = Modifier
+                      .fillMaxSize()
+                      .padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                  ) {
+                    // Cabeçalho: foto + nome + tipo
+                    Row(
+                      verticalAlignment = Alignment.CenterVertically,
+                      horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                      if (hero != null) {
+                        com.example.ui.components.ChampionAvatar(
+                          champion = hero,
+                          size = 46.dp,
+                          shape = RoundedCornerShape(10.dp)
+                        )
+                      }
+                      Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                          text = notice.heroName,
+                          fontWeight = FontWeight.Bold,
+                          color = MechaPrimary,
+                          fontSize = 17.sp
+                        )
+                        Text(
+                          text = "${notice.kind} • ${notice.lane}",
+                          fontSize = 11.sp,
+                          color = when (notice.kind) {
+                            "BUFF" -> MechaPrimaryContainer
+                            "NERF" -> MechaError
+                            else -> Color(0xFFEDB25A)
+                          },
+                          fontWeight = FontWeight.ExtraBold
+                        )
+                      }
+                      androidx.compose.material3.IconButton(onClick = { selectedNotice = null }) {
+                        Icon(
+                          imageVector = Icons.Default.Close,
+                          contentDescription = "Fechar",
+                          tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                      }
+                    }
+
+                    // Texto oficial completo — sempre rolável
+                    Column(
+                      verticalArrangement = Arrangement.spacedBy(8.dp),
+                      modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                    ) {
+                      Text(
+                        text = if (notice.details.isNotBlank()) notice.details else notice.description,
+                        fontSize = 13.sp,
+                        color = MechaOnSurface,
+                        lineHeight = 19.sp
+                      )
+                      Text(
+                        text = "Base: notas oficiais da $patchLabel (honorofkings.com/br)",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                      )
+                    }
+
+                    Button(
+                      onClick = { selectedNotice = null },
+                      colors = ButtonDefaults.buttonColors(
+                        containerColor = MechaPrimaryContainer,
+                        contentColor = MechaOnPrimaryContainer
+                      ),
+                      modifier = Modifier.fillMaxWidth()
+                    ) { Text("Entendi", fontWeight = FontWeight.Bold) }
                   }
-                  Column {
-                    Text(
-                      text = notice.heroName,
-                      fontWeight = FontWeight.Bold,
-                      color = MechaPrimary,
-                      fontSize = 17.sp
-                    )
-                    Text(
-                      text = "${notice.kind} • ${notice.lane}",
-                      fontSize = 11.sp,
-                      color = when (notice.kind) {
-                        "BUFF" -> MechaPrimaryContainer
-                        "NERF" -> MechaError
-                        else -> Color(0xFFEDB25A)
-                      },
-                      fontWeight = FontWeight.ExtraBold
-                    )
-                  }
-                }
-              },
-              text = {
-                Column(
-                  verticalArrangement = Arrangement.spacedBy(8.dp),
-                  modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .heightIn(min = 80.dp, max = 420.dp)
-                ) {
-                  Text(
-                    text = if (notice.details.isNotBlank()) notice.details else notice.description,
-                    fontSize = 13.sp,
-                    color = MechaOnSurface,
-                    lineHeight = 18.sp
-                  )
-                  Text(
-                    text = "Base: notas oficiais da $patchLabel (honorofkings.com/br)",
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                  )
                 }
               }
-            )
+            }
           }
         }
       }

@@ -124,7 +124,7 @@ class MetaRepository private constructor(context: Context) {
             _patchLabel.value = "$seasonLabel • ${campPatch.date.ifBlank { "patch atual" }}"
         } else {
             patches.maxByOrNull { it.patchDate }?.let { latest ->
-                _patchLabel.value = "${latest.season} â€¢ ${latest.patchDate}"
+                _patchLabel.value = "${latest.season} • ${latest.patchDate}"
             }
         }
 
@@ -332,20 +332,18 @@ class MetaRepository private constructor(context: Context) {
 
         // Enriquece counters: quem é "forte contra" este herói em outros cards vira
         // counter dele aqui (dados reais cruzados) — garante 4+ counters por campeão
-        val byNormName = { n: String -> n.lowercase(java.util.Locale.ROOT).replace(Regex("[^a-z0-9]"), "") }
+        val key = { n: String -> ChampionJsonMapper.normalizeMatchupName(n) }
         val currentCounters = _champions.value
         val enriched = currentCounters.map { champ ->
-            val directNames = champ.counters.map { byNormName(it.name) }.toSet()
+            val directNames = champ.counters.map { key(it.name) }.toSet()
             val extra = currentCounters.filter { other ->
-                other.id != champ.id && other.strongAgainst.any { byNormName(it.name) == byNormName(champ.name) }
+                other.id != champ.id && other.strongAgainst.any { key(it.name) == key(champ.name) }
             }.map { other ->
-                val eff = other.strongAgainst.first { byNormName(it.name) == byNormName(champ.name) }.effectiveness
-                com.example.data.model.MatchupInfo(other.name, other.lane.chipShort, eff)
+                com.example.data.model.MatchupInfo(other.name, other.lane.chipShort, 0)
             }
             val merged = (champ.counters + extra)
-                .filter { byNormName(it.name) != byNormName(champ.name) }
-                .distinctBy { byNormName(it.name) }
-                .sortedByDescending { it.effectiveness }
+                .filter { key(it.name) != key(champ.name) }
+                .distinctBy { key(it.name) }
                 .take(4)
             if (directNames.isEmpty() && merged.isEmpty()) champ else champ.copy(counters = merged)
         }
@@ -441,7 +439,7 @@ class MetaRepository private constructor(context: Context) {
             }
         }
 
-        if (sources.isEmpty()) return@withContext SyncResult.Failure("Sem conexÃ£o â€” usando dados locais em cache")
+        if (sources.isEmpty()) return@withContext SyncResult.Failure("Sem conexão — usando dados locais em cache")
 
         // Overrides do painel admin (URL configurável)
         val adminUrl = adminOverridesUrl ?: defaultAdminOverridesUrl

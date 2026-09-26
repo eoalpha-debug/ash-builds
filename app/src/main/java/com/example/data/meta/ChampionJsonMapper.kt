@@ -16,6 +16,50 @@ object ChampionJsonMapper {
 
     fun matchesKey(a: String, b: String): Boolean = norm(a) == norm(b)
 
+    /** Normaliza nomes de matchup da fonte BR (remove sufixo de rota e acentos). */
+    fun normalizeMatchupName(raw: String): String {
+        var s = raw.trim()
+            .replace(Regex("\\s+(Superior|Selva|Meio|Atirador|Suporte|Roam|Top|ADC)$", RegexOption.IGNORE_CASE), "")
+        s = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
+            .replace(Regex("\\p{Mn}+"), "")
+        return s.lowercase(Locale.ROOT).trim()
+    }
+
+    /** Aliases PT (fonte BR) → nome EN usado no app. */
+    private val matchupAliases = mapOf(
+        "consorte yu" to "Consort Yu",
+        "luban n7" to "Luban No.7",
+        "anette" to "Annette",
+        "mayenne" to "Mayene",
+        "zhaojun" to "Wang Zhaojun",
+        "gao" to "Gao Changgong",
+        "ukyo" to "Ukyo Tachibana",
+        "mai" to "Mai Shiranui",
+        "lapu lapu" to "Lapulapu",
+        "shoyue" to "Shouyue",
+        "ao yin" to "Ao'yin",
+        "li xin amarelo" to "Li Xin",
+        "li xin vermelho" to "Li Xin",
+        "ser do fluxo (mago)" to "Flowborn (Mage)",
+        "ser do fluxo (assassino)" to "Flowborn (Assassin)",
+        "ser do fluxo (atirador)" to "Flowborn (Marksman)",
+        "ser do fluxo (tanque)" to "Flowborn (Tank)",
+        "ser do fluxo (apoio)" to "Flowborn (Roamer)",
+        "ser do fluxo" to "Flowborn (Mage)",
+        "yang jian" to "Yang Jian",
+        "agudo" to "Agudo"
+    )
+
+    /** Resolve o nome EN oficial para um nome de matchup qualquer (PT/EN/sufixo). */
+    fun resolveMatchupName(raw: String, knownNames: List<String>): String {
+        val clean = normalizeMatchupName(raw)
+        matchupAliases[clean]?.let { alias -> if (knownNames.any { it.equals(alias, true) }) return alias }
+        knownNames.firstOrNull { normalizeMatchupName(it) == clean }?.let { return it }
+        // fallback: começa com o mesmo nome (ex.: "Florentino Superior")
+        return knownNames.firstOrNull { normalizeMatchupName(it).startsWith(clean) || clean.startsWith(normalizeMatchupName(it)) }
+            ?: raw
+    }
+
     /** Aliases EN (app) → chave PT usada nas imagens/builds da fonte PT-BR. */
     private val proAliases = mapOf(
         "annette" to "anette",
