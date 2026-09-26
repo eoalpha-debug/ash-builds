@@ -221,7 +221,7 @@ fun ChampionsListScreen(
     }
 
     // Champions List
-    items(champions) { champion ->
+    items(champions, key = { it.id }) { champion ->
       ChampionListItem(
         champion = champion,
         onClick = { onNavigateToChampionDetail(champion.id) }

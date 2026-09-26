@@ -1,4 +1,4 @@
-package com.example.ui.screens
+﻿package com.example.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -322,7 +322,7 @@ fun TierListScreen(
         )
       }
 
-      items(ssHeroes) { hero ->
+      items(ssHeroes, key = { it.id }) { hero ->
         TierSSHeroCard(
           champion = hero,
           onClick = { onNavigateToChampionDetail(hero.id) }
@@ -343,7 +343,7 @@ fun TierListScreen(
         )
       }
 
-      items(sHeroes) { hero ->
+      items(sHeroes, key = { it.id }) { hero ->
         TierSHeroCard(
           champion = hero,
           onClick = { onNavigateToChampionDetail(hero.id) }
@@ -364,7 +364,7 @@ fun TierListScreen(
         )
       }
 
-      items(aHeroes) { hero ->
+      items(aHeroes, key = { it.id }) { hero ->
         TierAHeroCard(
           champion = hero,
           onClick = { onNavigateToChampionDetail(hero.id) }
@@ -384,7 +384,7 @@ fun TierListScreen(
         )
       }
 
-      items(bHeroes) { hero ->
+      items(bHeroes, key = { it.id }) { hero ->
         TierAHeroCard(
           champion = hero,
           onClick = { onNavigateToChampionDetail(hero.id) }
@@ -405,7 +405,7 @@ fun TierListScreen(
         )
       }
 
-      items(cHeroes) { hero ->
+      items(cHeroes, key = { it.id }) { hero ->
         TierAHeroCard(
           champion = hero,
           onClick = { onNavigateToChampionDetail(hero.id) }

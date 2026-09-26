@@ -61,8 +61,9 @@ fun HoKMetaLabApp(
   viewModel: MetaViewModel,
   modifier: Modifier = Modifier
 ) {
-  var currentTab by remember { mutableStateOf(AppTab.INICIO) }
-  var detailChampionId by remember { mutableStateOf<String?>(null) }
+  // rememberSaveable: sobrevive à rotação da tela (antes: remember perdia aba/tela atual)
+  var currentTab by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(AppTab.INICIO) }
+  var detailChampionId by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) }
 
   // Handle hardware back press when in detail screen
   BackHandler(enabled = detailChampionId != null) {

@@ -10,18 +10,23 @@ import java.util.Locale
  */
 object ChampionJsonMapper {
 
+    // Regex pré-compiladas (evita recompilar ~60 mil vezes por carga de dados)
+    private val NORM_REGEX = Regex("[^a-z0-9]")
+    private val MATCHUP_SUFFIX_REGEX = Regex("\\s+(Superior|Selva|Meio|Atirador|Suporte|Roam|Top|ADC)$", RegexOption.IGNORE_CASE)
+    private val ACCENTS_REGEX = Regex("\\p{Mn}+")
+    private val IMG_EXT_REGEX = Regex("\\.(jpe?g|png)$", RegexOption.IGNORE_CASE)
+
     /** Normaliza slug/id para comparação (ex.: "mai-shiranui" == "mai_shiranui"). */
     private fun norm(key: String): String =
-        key.lowercase(Locale.ROOT).replace(Regex("[^a-z0-9]"), "")
+        key.lowercase(Locale.ROOT).replace(NORM_REGEX, "")
 
     fun matchesKey(a: String, b: String): Boolean = norm(a) == norm(b)
 
     /** Normaliza nomes de matchup da fonte BR (remove sufixo de rota e acentos). */
     fun normalizeMatchupName(raw: String): String {
-        var s = raw.trim()
-            .replace(Regex("\\s+(Superior|Selva|Meio|Atirador|Suporte|Roam|Top|ADC)$", RegexOption.IGNORE_CASE), "")
+        var s = raw.trim().replace(MATCHUP_SUFFIX_REGEX, "")
         s = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD)
-            .replace(Regex("\\p{Mn}+"), "")
+            .replace(ACCENTS_REGEX, "")
         return s.lowercase(Locale.ROOT).trim()
     }
 
@@ -89,7 +94,7 @@ object ChampionJsonMapper {
 
     fun proHeroImageUrl(proHero: HoKProHeroJson?): String? =
         proHero?.file?.takeIf { it.isNotBlank() }
-            ?.replace(Regex("\\.(jpe?g|png)$", RegexOption.IGNORE_CASE), ".webp")
+            ?.replace(IMG_EXT_REGEX, ".webp")
             ?.let { "https://hokpro.gg/images/heroes/$it" }
 
     // --- Mapeamentos básicos ---

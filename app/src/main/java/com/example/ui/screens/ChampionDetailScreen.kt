@@ -651,7 +651,10 @@ fun MatchupsSection(champion: Champion, viewModel: MetaViewModel) {
   if (champion.counters.isEmpty() && champion.synergies.isEmpty() && champion.strongAgainst.isEmpty()) return
 
   // Resolve a imagem de cada matchup pelo nome do herói (PT/EN, com aliases)
+  // Fast path: mapa exato 1x por composição (nomes já vêm resolvidos do repositório)
+  val imagesByExactName = remember { viewModel.allChampions.value.associate { it.name to it.imageUrl } }
   fun imageOf(name: String): String? {
+    imagesByExactName[name]?.let { return it }
     val known = viewModel.allChampions.value.map { it.name }
     val resolved = ChampionJsonMapper.resolveMatchupName(name, known)
     return viewModel.allChampions.value.firstOrNull {

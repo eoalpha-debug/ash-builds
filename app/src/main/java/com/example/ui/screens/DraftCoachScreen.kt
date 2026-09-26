@@ -53,7 +53,6 @@ import com.example.ui.theme.MechaSurfaceContainer
 import com.example.ui.theme.MechaSurfaceContainerHigh
 import com.example.ui.theme.MechaSurfaceContainerHighest
 import com.example.ui.theme.MechaSurfaceContainerLow
-import com.example.ui.theme.TrendGreen
 import com.example.ui.viewmodel.MetaViewModel
 
 @Composable

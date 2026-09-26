@@ -34,6 +34,8 @@ class MetaRepository private constructor(context: Context) {
     private val moshi = Moshi.Builder().build()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val cacheDao: MetaCacheDao = AppDatabase.getDatabase(appContext).metaCacheDao()
+    private val slugNormRegex = Regex("[^a-z0-9]")
+    private fun slugNorm(s: String) = s.lowercase(java.util.Locale.ROOT).replace(slugNormRegex, "")
 
     private val _champions = MutableStateFlow<List<Champion>>(emptyList())
     val champions: StateFlow<List<Champion>> = _champions.asStateFlow()
@@ -61,6 +63,9 @@ class MetaRepository private constructor(context: Context) {
 
     /** Snapshot vindo do backend do Camp (opcional): slug -> (tier, rates). */
     private var campSnapshot: Map<String, SnapshotEntry> = emptyMap()
+
+    /** Histórico de WR pré-carregado (nome normalizado -> datas × valores). Lido 1x no loadBase. */
+    private var wrHistoryByName: Map<String, List<Pair<String, Double>>> = emptyMap()
 
     @com.squareup.moshi.JsonClass(generateAdapter = true)
     data class SnapshotEntry(val tier: String?, val winRate: Double, val pickRate: Double, val banRate: Double)
@@ -111,8 +116,9 @@ class MetaRepository private constructor(context: Context) {
                 ?: appContext.assets.open("meta/admin_overrides.json").bufferedReader().use { it.readText() }
             moshi.adapter(AdminOverridesJson::class.java).fromJson(cached)
         }.getOrNull()
-        adminOverrides?.featuredHero?.takeIf { it.isNotBlank() }?.let { _featuredHeroId.value = it }
-        adminOverrides?.bannerMessage?.takeIf { it.isNotBlank() }?.let { _bannerMessage.value = it }
+        // Reset explícito (banner/destaque removidos no painel devem sumir do app)
+        _featuredHeroId.value = adminOverrides?.featuredHero?.takeIf { it.isNotBlank() }
+        _bannerMessage.value = adminOverrides?.bannerMessage?.takeIf { it.isNotBlank() }
         val campPatch = runCatching {
             val raw = appContext.assets.open("meta/camp_patch.json").bufferedReader().use { it.readText() }
             moshi.adapter(CampPatchJson::class.java).fromJson(raw)
@@ -221,11 +227,10 @@ class MetaRepository private constructor(context: Context) {
             .associate { it.nome to "https://hokpro.gg/api/image/${it.id}" }
 
         // Heróis que existem no Camp oficial mas não no heroes.json embutido (ex.: Yuan Ge, Flowborn extra)
-        val normK = { s: String -> s.lowercase(java.util.Locale.ROOT).replace(Regex("[^a-z0-9]"), "") }
-        val existingKeys = heroes.flatMap { listOf(normK(it.slug), normK(it.name)) }.toSet()
+        val existingKeys = heroes.flatMap { listOf(slugNorm(it.slug), slugNorm(it.name)) }.toSet()
         val syntheticHeroes = campFull.mapNotNull { c ->
             val slug = CAMP_PT_SLUG_ALIASES[c.slug] ?: c.slug
-            if (existingKeys.contains(normK(slug)) || existingKeys.contains(normK(c.name))) return@mapNotNull null
+            if (existingKeys.contains(slugNorm(slug)) || existingKeys.contains(slugNorm(c.name))) return@mapNotNull null
             val enName = SYNTH_HERO_NAMES[slug] ?: c.name
             val rolesFromLane = when {
                 c.lane.contains("superior", true) || c.lane.contains("Clash", true) -> listOf("Fighter")
@@ -249,8 +254,41 @@ class MetaRepository private constructor(context: Context) {
         }
 
         val hiddenSlugs = adminOverrides?.hiddenChampions.orEmpty()
-        val normSlug = { s: String -> s.lowercase(java.util.Locale.ROOT).replace(Regex("[^a-z0-9]"), "") }
-        val isHidden = { s: String -> hiddenSlugs.any { normSlug(it) == normSlug(s) } }
+        val isHidden = { s: String -> hiddenSlugs.any { slugNorm(it) == slugNorm(s) } }
+
+        // ── Índices O(1) (antes: 7 varreduras O(n) com regex por herói = ~60 mil chamadas) ──
+        fun <V> indexPairs(pairs: List<Pair<String, V>>): Map<String, V> {
+            val m = HashMap<String, V>()
+            pairs.forEach { (k, v) -> m.putIfAbsent(slugNorm(k), v) }
+            return m
+        }
+        val mockById = MockMetaDatabase.allChampions.flatMap { listOf(it.id to it, it.name to it) }.let { pairs ->
+            val m = HashMap<String, com.example.data.model.Champion>(); pairs.forEach { (k, v) -> m.putIfAbsent(slugNorm(k), v) }; m
+        }
+        val campFullById = campFull.flatMap { c ->
+            val slug = CAMP_PT_SLUG_ALIASES[c.slug] ?: c.slug
+            listOf(slug to c, c.slug to c, c.name to c)
+        }.let { pairs -> val m = HashMap<String, CampHeroJson>(); pairs.forEach { (k, v) -> m.putIfAbsent(slugNorm(k), v) }; m }
+        val proBuildsById = proBuilds.entries.associate { (k, v) -> slugNorm(k) to v }
+        val countersById = countersMap.entries.associate { (k, v) -> slugNorm(k) to v }
+        val difficultyById = difficultyMap.entries.associate { (k, v) -> slugNorm(k) to v }
+        val tierOverridesById = tierOverrides.entries.associate { (k, v) -> slugNorm(k) to v }
+        val adminTierById = adminOverrides?.tierOverrides?.entries?.associate { (k, v) -> slugNorm(k) to v }.orEmpty()
+        val adminBuildById = adminOverrides?.customBuilds?.entries?.associate { (k, v) -> slugNorm(k) to v }.orEmpty()
+        val campSnapById = campSnapshot.entries.associate { (k, v) -> slugNorm(k) to v }
+
+        // Histórico de WR: carrega 1x (na thread IO) para consulta O(1) na UI
+        wrHistoryByName = runCatching {
+            val raw = appContext.assets.open("meta/rankings_history.json").bufferedReader().use { it.readText() }
+            val hist = moshi.adapter(WrHistoryJson::class.java).fromJson(raw) ?: return@runCatching emptyMap<String, List<Pair<String, Double>>>()
+            val out = HashMap<String, MutableList<Pair<String, Double>>>()
+            hist.dates.forEach { date ->
+                hist.data[date]?.forEach { (name, wr) ->
+                    out.getOrPut(slugNorm(name)) { mutableListOf() }.add(date to wr)
+                }
+            }
+            out
+        }.getOrDefault(emptyMap())
 
         fun applyOverrides(base: com.example.data.model.Champion): com.example.data.model.Champion {
             var c = base
@@ -267,20 +305,15 @@ class MetaRepository private constructor(context: Context) {
 
         _champions.value = (heroes + syntheticHeroes).mapNotNull { hero ->
             if (isHidden(hero.slug)) return@mapNotNull null
-            val mock = MockMetaDatabase.allChampions.firstOrNull { ChampionJsonMapper.matchesKey(it.id, hero.slug) || ChampionJsonMapper.matchesKey(it.name, hero.name) }
-            val snap = campSnapshot.entries.firstOrNull { ChampionJsonMapper.matchesKey(it.key, hero.slug) || ChampionJsonMapper.matchesKey(it.key, hero.name) }?.value
-            val tierOverride = (
-                adminOverrides?.tierOverrides?.entries?.firstOrNull { ChampionJsonMapper.matchesKey(it.key, hero.slug) }?.value
-                    ?: tierOverrides.entries.firstOrNull { ChampionJsonMapper.matchesKey(it.key, hero.name) || ChampionJsonMapper.matchesKey(it.key, hero.slug) }?.value?.name
-                )
-            if (adminOverrides?.featuredHero == hero.slug) _featuredHeroId.value = hero.slug
-            val countersData = countersMap.entries.firstOrNull {
-                ChampionJsonMapper.matchesKey(it.key, hero.slug) || ChampionJsonMapper.matchesKey(it.key, hero.name)
-            }?.value
-            val campHero = campFull.firstOrNull {
-                val campSlug = CAMP_PT_SLUG_ALIASES[it.slug] ?: it.slug
-                ChampionJsonMapper.matchesKey(campSlug, hero.slug) || ChampionJsonMapper.matchesKey(it.name, hero.name)
-            }
+            val heroKey = slugNorm(hero.slug)
+            val heroNameKey = slugNorm(hero.name)
+            val mock = mockById[heroKey] ?: mockById[heroNameKey]
+            val snap = campSnapById[heroKey] ?: campSnapById[heroNameKey]
+            val tierOverride = adminTierById[heroKey]
+                ?: tierOverridesById[heroKey]?.name
+                ?: tierOverridesById[heroNameKey]?.name
+            val countersData = countersById[heroKey] ?: countersById[heroNameKey]
+            val campHero = campFullById[heroKey] ?: campFullById[heroNameKey]
             val converted = ChampionJsonMapper.toChampion(
                 hero = hero,
                 items = items,
@@ -288,16 +321,12 @@ class MetaRepository private constructor(context: Context) {
                 tierOverride = tierOverride?.let { parseTier(it) },
                 ratesOverride = snap?.let { HeroRateJson(winRate = it.winRate, pickRate = it.pickRate, banRate = it.banRate) },
                 camp = campHero,
-                proBuild = proBuilds.entries.firstOrNull { ChampionJsonMapper.matchesKey(it.key, hero.slug) }?.value,
+                proBuild = proBuildsById[heroKey],
                 proHero = ChampionJsonMapper.findProHero(proHeroes, hero.slug, hero.name),
                 itemPoolPt = itemPoolPt,
-                difficultyReal = difficultyMap.entries.firstOrNull {
-                    ChampionJsonMapper.matchesKey(it.key, hero.slug) || ChampionJsonMapper.matchesKey(it.key, hero.name)
-                }?.value?.difficulty,
+                difficultyReal = (difficultyById[heroKey] ?: difficultyById[heroNameKey])?.difficulty,
                 countersData = countersData,
-                customBuild = adminOverrides?.customBuilds?.entries?.firstOrNull {
-                    ChampionJsonMapper.matchesKey(it.key, hero.slug)
-                }?.value,
+                customBuild = adminBuildById[heroKey],
                 ptItemImage = { nome -> itemPoolPt.entries.firstOrNull { it.key.equals(nome.trim(), true) }?.value }
             )
             // Guia manual do Mock tem prioridade no texto, mas recebe WR/tier,
@@ -331,59 +360,81 @@ class MetaRepository private constructor(context: Context) {
         }.sortedWith(compareBy({ it.tier.ordinal }, { -parseRate(it.winRate) }))
 
         // Enriquece counters: quem é "forte contra" este herói em outros cards vira
-        // counter dele aqui (dados reais cruzados) — garante 4+ counters por campeão
-        val key = { n: String -> ChampionJsonMapper.normalizeMatchupName(n) }
+        // counter dele aqui (dados reais cruzados) — garante 4 counters por campeão.
+        // Otimizado: chaves normalizadas pré-computadas 1x (antes: regex em loop O(n²)).
         val currentCounters = _champions.value
+        val champKeyById = currentCounters.associate { it.id to ChampionJsonMapper.normalizeMatchupName(it.name) }
+        val champByKey = currentCounters.associateBy { champKeyById[it.id] }
+
+        // Índice reverso: nomeNormalizado do herói -> quem é forte contra ele
+        val strongAgainstIndex = HashMap<String, MutableList<com.example.data.model.Champion>>()
+        currentCounters.forEach { other ->
+            other.strongAgainst.forEach { m ->
+                val k = ChampionJsonMapper.normalizeMatchupName(m.name)
+                strongAgainstIndex.getOrPut(k) { mutableListOf() }.add(other)
+            }
+        }
+
+        // Resolve nomes PT da fonte BR para os nomes EN oficiais do app (1x, na IO)
+        val allChampNames = currentCounters.map { it.name }
+        val knownNormIndex = HashMap<String, String>()
+        allChampNames.forEach { knownNormIndex[ChampionJsonMapper.normalizeMatchupName(it)] = it }
+        fun fastResolve(raw: String): String {
+            val clean = ChampionJsonMapper.normalizeMatchupName(raw)
+            return knownNormIndex[clean] ?: raw
+        }
+        fun resolveList(list: List<MatchupInfo>): List<MatchupInfo> =
+            if (list.isEmpty()) list else list.map { it.copy(name = fastResolve(it.name)) }
 
         // Frequência de counters por rota+classe (agregado real) para preencher heróis novos
-        val laneClassCounters = currentCounters
-            .filter { it.counters.size >= 3 }
+        fun freqPool(champs: List<com.example.data.model.Champion>): List<String> =
+            champs.flatMap { it.counters }
+                .groupBy { ChampionJsonMapper.normalizeMatchupName(it.name) }
+                .entries
+                .sortedByDescending { it.value.size }
+                .map { it.key }
+
+        val withData = currentCounters.filter { it.counters.size >= 3 }
+        val laneClassPools = withData
             .groupBy { it.lane to it.heroClass }
-            .mapValues { (_, champs) ->
-                champs.flatMap { it.counters }
-                    .groupBy { key(it.name) }
-                    .entries
-                    .sortedByDescending { it.value.size }
-                    .map { it.key }
-            }
-        val laneOnlyCounters = currentCounters
-            .filter { it.counters.size >= 3 }
+            .mapValues { (_, champs) -> freqPool(champs) }
+        val laneOnlyPools = withData
             .groupBy { it.lane }
-            .mapValues { (_, champs) ->
-                champs.flatMap { it.counters }
-                    .groupBy { key(it.name) }
-                    .entries
-                    .sortedByDescending { it.value.size }
-                    .map { it.key }
-            }
+            .mapValues { (_, champs) -> freqPool(champs) }
 
         val enriched = currentCounters.map { champ ->
-            val directNames = champ.counters.map { key(it.name) }.toSet()
-            val extra = currentCounters.filter { other ->
-                other.id != champ.id && other.strongAgainst.any { key(it.name) == key(champ.name) }
-            }.map { other ->
-                com.example.data.model.MatchupInfo(other.name, other.lane.chipShort, 0)
-            }
-            var merged = (champ.counters + extra)
-                .filter { key(it.name) != key(champ.name) }
-                .distinctBy { key(it.name) }
+            val myKey = champKeyById[champ.id] ?: return@map champ
+            val resolvedDirect = resolveList(champ.counters)
+            val seen = resolvedDirect.map { ChampionJsonMapper.normalizeMatchupName(it.name) }.toMutableSet()
 
-            // Última camada: agregado real da rota/classe (heróis novos sem dados próprios)
+            // Camada 2: cruzamento reverso real (strongAgainst dos outros)
+            val extra = strongAgainstIndex[myKey].orEmpty()
+                .filter { it.id != champ.id }
+                .map { MatchupInfo(it.name, it.lane.chipShort, 0) }
+                .filter { ChampionJsonMapper.normalizeMatchupName(it.name) !in seen }
+
+            var merged = (resolvedDirect + extra)
+                .filter { ChampionJsonMapper.normalizeMatchupName(it.name) != myKey }
+                .distinctBy { ChampionJsonMapper.normalizeMatchupName(it.name) }
+
+            // Camada 3: agregado real da rota/classe (heróis novos sem dados próprios)
             if (merged.size < 4) {
-                val existing = merged.map { key(it.name) }.toMutableSet()
-                val pool = laneClassCounters[champ.lane to champ.heroClass].orEmpty() +
-                    laneOnlyCounters[champ.lane].orEmpty()
+                val pool = laneClassPools[champ.lane to champ.heroClass].orEmpty() +
+                    laneOnlyPools[champ.lane].orEmpty()
                 for (k in pool) {
                     if (merged.size >= 4) break
-                    if (k == key(champ.name) || k in existing) continue
-                    currentCounters.firstOrNull { key(it.name) == k }?.let {
-                        merged += com.example.data.model.MatchupInfo(it.name, it.lane.chipShort, 0)
-                        existing += k
+                    if (k == myKey || k in seen) continue
+                    champByKey[k]?.let {
+                        merged += MatchupInfo(it.name, it.lane.chipShort, 0)
+                        seen += k
                     }
                 }
             }
-            merged = merged.take(4)
-            if (directNames.isEmpty() && merged.isEmpty()) champ else champ.copy(counters = merged)
+            champ.copy(
+                counters = merged.take(4),
+                synergies = resolveList(champ.synergies),
+                strongAgainst = resolveList(champ.strongAgainst)
+            )
         }
         _champions.value = enriched
 
@@ -477,8 +528,6 @@ class MetaRepository private constructor(context: Context) {
             }
         }
 
-        if (sources.isEmpty()) return@withContext SyncResult.Failure("Sem conexão — usando dados locais em cache")
-
         // Overrides do painel admin (URL configurável)
         val adminUrl = adminOverridesUrl ?: defaultAdminOverridesUrl
         if (!adminUrl.isNullOrBlank()) {
@@ -545,15 +594,11 @@ class MetaRepository private constructor(context: Context) {
             it.id.equals(id, true) || ChampionJsonMapper.matchesKey(it.id, id)
         }
 
-    /** Histórico de WR do herói (datas × valor), lido do asset rankings_history.json. */
+    /** Histórico de WR do herói (datas × valores). O(1): lê do mapa pré-carregado no loadBase. */
     fun getWrHistory(heroName: String): List<Pair<String, Double>> {
-        return runCatching {
-            val raw = appContext.assets.open("meta/rankings_history.json").bufferedReader().use { it.readText() }
-            val hist = moshi.adapter(WrHistoryJson::class.java).fromJson(raw) ?: return emptyList()
-            hist.dates.mapNotNull { date ->
-                hist.data[date]?.entries?.firstOrNull { ChampionJsonMapper.matchesKey(it.key, heroName) }?.value?.let { wr -> date to wr }
-            }
-        }.getOrDefault(emptyList())
+        if (wrHistoryByName.isEmpty()) return emptyList()
+        val k = heroName.lowercase(java.util.Locale.ROOT).replace(Regex("[^a-z0-9]"), "")
+        return wrHistoryByName[k].orEmpty()
     }
 
     fun getChampionsByLane(lane: Lane): List<Champion> =

@@ -121,7 +121,9 @@ fun HomeScreen(
   val allChampions by viewModel.allChampions.collectAsState()
   val patchNotices by viewModel.patchNotices.collectAsState()
 
-  val trendingChampions = allChampions.filter { it.tier == HeroTier.SS || it.tier == HeroTier.S }
+  val trendingChampions = remember(allChampions) {
+    allChampions.filter { it.tier == HeroTier.SS || it.tier == HeroTier.S }
+  }
 
   // Herói em destaque: maior win rate real do meta atual
   if (allChampions.isEmpty()) {
