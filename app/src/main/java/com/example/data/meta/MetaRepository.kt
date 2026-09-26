@@ -346,6 +346,16 @@ class MetaRepository private constructor(context: Context) {
                     .sortedByDescending { it.value.size }
                     .map { it.key }
             }
+        val laneOnlyCounters = currentCounters
+            .filter { it.counters.size >= 3 }
+            .groupBy { it.lane }
+            .mapValues { (_, champs) ->
+                champs.flatMap { it.counters }
+                    .groupBy { key(it.name) }
+                    .entries
+                    .sortedByDescending { it.value.size }
+                    .map { it.key }
+            }
 
         val enriched = currentCounters.map { champ ->
             val directNames = champ.counters.map { key(it.name) }.toSet()
@@ -362,7 +372,7 @@ class MetaRepository private constructor(context: Context) {
             if (merged.size < 4) {
                 val existing = merged.map { key(it.name) }.toMutableSet()
                 val pool = laneClassCounters[champ.lane to champ.heroClass].orEmpty() +
-                    laneClassCounters[champ.lane].values.flatten()
+                    laneOnlyCounters[champ.lane].orEmpty()
                 for (k in pool) {
                     if (merged.size >= 4) break
                     if (k == key(champ.name) || k in existing) continue
